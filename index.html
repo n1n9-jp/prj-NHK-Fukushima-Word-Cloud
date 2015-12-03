@@ -34,6 +34,8 @@
 <link rel='stylesheet' href='assets/css/style.css'>
 <script src='assets/js/jquery-1.8.3.min.js'></script>
 <script src='assets/js/d3.min.js'></script>
+<script src="http://d3js.org/queue.v1.min.js" charset="utf-8"></script>
+<script src='assets/js/d3.layout.cloud.js'></script>
 <script src='assets/js/app.js'></script>
 
 <link rel="apple-touch-icon" sizes="57x57" href="assets/images/favicon/apple-touch-icon-57x57.png">
@@ -64,26 +66,45 @@
 <body>
 
 <header>
-<nav></nav>
+
 </header>
 <section>
 <div class="wrap cf">
 
-<!-- <ul class="m-1ofall t-1ofall d-1ofall">
-	<li class="btn m-1of4 t-1of4 d-1of4"><a href="#">全体</a></li>
-	<li class="btn m-1of4 t-1of4 d-1of4"><a href="#">年齢</a></li>
-	<li class="btn m-1of4 t-1of4 d-1of4"><a href="#">区域</a></li>
-	<li class="btn m-1of4 t-1of4 d-1of4"><a href="#">性別</a></li>
-</ul> -->
+<div class="m-all t-all d-all">
 
-<div id="radioBlock">
+		<div class="m-all t-1of4 d-1of4">
+			<h1 class="top">原発事故 避難者の声</h1>
+			<p class="top">〜NHK福島放送局アンケート〜</p>
+		</div>
+		<div class="m-all t-3of4 d-3of4">
+			<div id="radioBlock">
+			</div>
+		</div>
 </div>
 
+
+
 <div id="svgContainer">
-	<div id="container0" class="container">全体</div>
-	<div id="container1" class="container">年齢</div>
-	<div id="container2" class="container">区域</div>
-	<div id="container3" class="container">性別</div>
+
+	<div id="container0">
+		<div id="svgcontainer0" class="container"></div>
+	</div>
+
+	<div id="container1">
+		<div id="svgcontainer1" class="container"></div>
+		<div id="svgcontainer2" class="container"></div>
+		<div id="svgcontainer3" class="container"></div>
+	</div>
+	<div id="container2">
+		<div id="svgcontainer4" class="container"></div>
+		<div id="svgcontainer5" class="container"></div>
+		<div id="svgcontainer6" class="container"></div>
+	</div>
+	<div id="container3">
+		<div id="svgcontainer7" class="container"></div>
+		<div id="svgcontainer8" class="container"></div>
+	</div>
 </div>
 
 </div>
