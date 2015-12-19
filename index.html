@@ -32,10 +32,12 @@
       
 
 <link rel='stylesheet' href='assets/css/style.css'>
+<link rel='stylesheet' href='assets/css/z-modal.min.css'>
 <script src='assets/js/jquery-1.8.3.min.js'></script>
 <script src='assets/js/d3.min.js'></script>
 <script src="http://d3js.org/queue.v1.min.js" charset="utf-8"></script>
 <script src='assets/js/d3.layout.cloud.js'></script>
+<script src='assets/js/z-modal.min.js'></script>
 <script src='assets/js/app.js'></script>
 
 <link rel="apple-touch-icon" sizes="57x57" href="assets/images/favicon/apple-touch-icon-57x57.png">
@@ -59,7 +61,19 @@
 <meta name="msapplication-config" content="/browserconfig.xml">
 <meta name="theme-color" content="#ffffff">
 
-<title></title>
+<!-- SNSボタン-->
+<script type="text/javascript" src="assets/js/social_buttons.js" charset="UTF-8"></script>
+<script>
+    var page = new sysHash();
+
+    page.hash['t'] = '1';
+    page.hash['f'] = '1';
+    page.hash['m'] = '0';
+    page.hash['g'] = '0';
+    page.hash['h'] = '0';
+</script>
+
+<title>原発事故 避難者の声〜NHK福島放送局アンケート〜</title>
 
 </head>
 
@@ -83,6 +97,30 @@
 		</div>
 </div>
 
+<div id="wrapShadow" class="m-all t-all d-all">
+
+<div id="submenu" class="m-all t-all d-all">
+		<div class="m-all tall d-all">
+			<div id="submenu0">&nbsp;
+			</div>
+
+			<div id="submenu1" class="submenu">
+				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_age_2040.png" />20-40代</div>
+				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_age_5060.png" />50-60代</div>
+				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_age_70.png" />70代</div>
+			</div>
+			<div id="submenu2" class="submenu">
+				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_area_12.png" />帰還困難区域</div>
+				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_area_3.png" />居住制限区域</div>
+				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_area_4.png" />避難指示解除準備区域</div>
+			</div>
+			<div id="submenu3" class="submenu">
+				<div class="m-1of2 t-1of2 d-1of2 nav"><img src="assets/images/icon_sex_male.png" />男性</div>
+				<div class="m-1of2 t-1of2 d-1of2 nav"><img src="assets/images/icon_sex_female.png" />女性</div>
+			</div>
+		</div>
+</div><!-- #submenu -->
+
 
 
 <div id="svgContainer">
@@ -105,9 +143,32 @@
 		<div id="svgcontainer7" class="container"></div>
 		<div id="svgcontainer8" class="container"></div>
 	</div>
-</div>
+</div><!-- #svgContainer -->
+
+</div><!-- #wrapShadow -->
 
 </div>
+
+
+<div id="footerContainer" class="m-all t-all d-all">
+		<div class="m-1of2 t-1of2 d-1of2">
+            <p class="nhklogo">
+                <a href="http://www.nhk.or.jp"><img src="assets/images/logo_nhk.png" height="20" width="73" alt="NHK" /></a>
+            </p>
+            <div class="nhktxt">
+                <p>Copyright NHK (Japan Broadcasting Corporation). All rights reserved.</p>
+                <p>許可なく転載することを禁じます。 このページは受信料で制作しています。</p>
+            </div>
+		</div>
+		<div id="snsContainer" class="m-1of2 t-1of2 d-1of2">
+	        <div class="sns-btns">
+	            <script>showSNS(page);</script>
+	            <a class="bnr" href="../../nhkworld/english/news/shinsai-movie-en/"></a>
+	        </div>
+		</div>
+</div>
+
+
 </section>  
 </body>
 

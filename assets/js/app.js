@@ -62,12 +62,14 @@ $(document).ready(function(){
 	var vis = new Array(); var vid = 0;
     var fontSizeScale = d3.scale['sqrt']().range([14, 180]);
     var layout1, layout2, layout3;
+    var selectedWord="";
+    var detailWords;
 
 	/* ---------------
 	Viewport
 	--------------- */
 	var bWidth = 1200, bHeight = 500;
-	var margin = {top: 20, right: 20, bottom: 20, left: 20},
+	var margin = {top: 0, right: 0, bottom: 0, left: 0},
 	    width  = bWidth  - margin.left - margin.right,
 	    height = bHeight - margin.top - margin.bottom;
 
@@ -84,16 +86,16 @@ $(document).ready(function(){
 
 
 
-var widthArray = new Array();
-widthArray[0] = 1200;
-widthArray[1] = 400;
-widthArray[2] = 400;
-widthArray[3] = 400;
-widthArray[4] = 400;
-widthArray[5] = 400;
-widthArray[6] = 400;
-widthArray[7] = 600;
-widthArray[8] = 600;
+	var widthArray = new Array();
+	widthArray[0] = 1200;
+	widthArray[1] = 400;
+	widthArray[2] = 400;
+	widthArray[3] = 400;
+	widthArray[4] = 400;
+	widthArray[5] = 400;
+	widthArray[6] = 400;
+	widthArray[7] = 600;
+	widthArray[8] = 600;
 
 
 	/* all */
@@ -105,8 +107,6 @@ widthArray[8] = 600;
 	    .attr("id", "chartArea0")
 	  .append("g")
 	    .attr("transform", "translate(" + width/2 + "," + height/2 + ")");
-
-
 
 
 
@@ -142,9 +142,6 @@ widthArray[8] = 600;
 
 
 
-
-
-
 	/* area */
 	vis[4] = d3.select("#svgcontainer4").append("svg")
 	    .attr("width", widthArray[4])
@@ -174,7 +171,6 @@ widthArray[8] = 600;
 	    .attr("id", "chartArea6")
 	  .append("g")
 	    .attr("transform", "translate(" + widthArray[6]/2 + "," + height/2 + ")");
-
 
 
 
@@ -221,6 +217,7 @@ widthArray[8] = 600;
         	this.e.subscribe( 'draw:update', this.drawUpdate );
 	        this.e.subscribe( 'container:disappear', this.disappearContainer );
 	        this.e.subscribe( 'container:appear', this.appearContainer );
+        	this.e.subscribe( 'show:detail', this.showDetail );
 
 	        this.e.publish( 'load' );
 	    };
@@ -238,12 +235,13 @@ widthArray[8] = 600;
 		        .defer(d3.tsv, "assets/data/area4.tsv")
 		        .defer(d3.tsv, "assets/data/genderMale.tsv")
 		        .defer(d3.tsv, "assets/data/genderFemale.tsv")
+		        .defer(d3.tsv, "assets/data/detail.tsv")
 		        .await(loadReady);
 
 
 		    function loadReady(_error, _all, _age203040, 
 		    					_age5060, _age70, _area12, _area3, _area4, 
-		    					_genderMale, _genderFemale)
+		    					_genderMale, _genderFemale, _detail)
 		    {
 		    	tags[0] = $.extend(true, [], _all);
 		    	tags[1] = $.extend(true, [], _age203040);
@@ -254,6 +252,9 @@ widthArray[8] = 600;
 		    	tags[6] = $.extend(true, [], _area4);    	
 		    	tags[7] = $.extend(true, [], _genderMale);
 		    	tags[8] = $.extend(true, [], _genderFemale);
+
+		    	detailWords = $.extend(true, [], _detail);
+		    	console.log(detailWords);
 
             	self.e.publish('draw:viewport');
 		    }
@@ -332,12 +333,12 @@ widthArray[8] = 600;
 
 	    function draw(data, bounds) {
 
-	    	console.log("bounds", bounds);
+	    	//console.log("bounds", bounds);
 	    	var _width = widthArray[vid];
 
 
 	    	console.log("vid", vid);
-	    	console.log("_width", _width);
+	    	//console.log("_width", _width);
 
 
 	        vis[vid].attr("width", _width).attr("height", height);
@@ -360,7 +361,7 @@ widthArray[8] = 600;
 	                })
 	                .style("font-size", function(d) {
 	                    return d.size + "px";
-	                });;
+	                });
 
 	        text.enter().append("text")
 	                .attr("text-anchor", "middle")
@@ -375,6 +376,7 @@ widthArray[8] = 600;
 	                .duration(1000);
 
 
+
 	        text.style("font-family", function(d) {
 	                    return d.font;
 	                })
@@ -382,25 +384,61 @@ widthArray[8] = 600;
 	                    return grayScale( +d.value );
 	                })
 	                .style("opacity", 1.0)
+	                .attr("id", function(d,i){
+	                	return d.text + i;
+	                })
 	                .text(function(d) {
 	                    return d.text;
 	                })
 	                .on("mouseover", function (d, i){
-	                    //console.log("mouseover");
+					    d3.select("#"+ d.text + i).transition().duration(40).style({fill:'#000000'});
 	                })
-	                .on("mouseout", function (d, opacity){
-	                    //console.log("mouseout");
-	                })
+	                .on("mouseout", function (d, i){
+					    d3.select("#"+ d.text + i).transition().duration(2000).style("fill", function(d){
+							return grayScale( +d.value );
+	                	})
+	            	})
 	                .on("click", function (d, i){
-	                    //makeModalDialog();
+	                	selectedWord = d.text;
+	                    self.e.publish('show:detail');
 	                });
-
 
 	        vid++;
 	        if (vid<9) {
 	            self.e.publish('draw:update');
 	        }
 	    }
+
+
+	    this.showDetail = function() {
+	    	console.log("selectedWord", selectedWord);
+
+	    	for (var i=0; i<detailWords.length; i++) {
+	    		if (detailWords[i]["keyword"] == selectedWord) {
+	    			console.log(detailWords[i]["keyword"], detailWords[i]["expression"]);
+
+	    			var _age 		= detailWords[i]["age"];
+	    			var _sex 		= detailWords[i]["sex"];
+	    			var _area 		= detailWords[i]["area"];
+	    			var _keyword	= detailWords[i]["keyword"];	
+	    			var _expression = detailWords[i]["expression"];	    				    			
+	    		}
+	    	};
+
+
+		    var options = {
+		        title : "避難者の声",
+		        content : '<div class="attr age">年齢：' + _age + '</div><div class="attr age">性別：' + _sex + '</div><div class="attr area">地区区分：'+ _area + '</div><div class="attr area">選ばれた言葉：' + _keyword + '</div><div class="attr area">自由記述：' + _expression + '</div>',
+		        buttons : [{
+		            label: "閉じる"
+		        }]
+		    };
+
+		    new ZMODAL(options);
+
+	    };
+
+
 
 
 
@@ -433,7 +471,8 @@ widthArray[8] = 600;
 			.on("change", function(d,i){
 				prevNum = currentNum;
 		      	currentNum = i;
-		      	self.e.publish('container:disappear');
+				console.log(currentNum);
+				self.e.publish('container:disappear');
 		});
 
 		menuItems.append("label")
@@ -457,6 +496,7 @@ widthArray[8] = 600;
 			// $("#container" + prevNum).fadeOut('slow', function() {
 			// });
 			$("#container" + prevNum).animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'} );
+			$("#submenu" + prevNum).animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'} );
 			self.e.publish('container:appear');
 		    
 		}
@@ -466,6 +506,7 @@ widthArray[8] = 600;
 
 			console.log("here.");
 			$("#container" + currentNum).animate( { opacity: 'show'}, { duration: 1000, easing: 'swing'} );
+			$("#submenu" + currentNum).animate( { opacity: 'show'}, { duration: 1000, easing: 'swing'} );
 			//d3.select("#container" + currentNum).style("opacity", 1.0);
 		}
 
