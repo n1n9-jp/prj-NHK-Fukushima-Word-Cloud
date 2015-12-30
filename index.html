@@ -32,12 +32,13 @@
       
 
 <link rel='stylesheet' href='assets/css/style.css'>
-<link rel='stylesheet' href='assets/css/z-modal.min.css'>
+<link rel='stylesheet' href='assets/css/z-modal.css'>
 <script src='assets/js/jquery-1.8.3.min.js'></script>
+<script src='assets/js/jquery.transit.js'></script>
 <script src='assets/js/d3.min.js'></script>
 <script src="http://d3js.org/queue.v1.min.js" charset="utf-8"></script>
 <script src='assets/js/d3.layout.cloud.js'></script>
-<script src='assets/js/z-modal.min.js'></script>
+<script src='assets/js/z-modal.js'></script>
 <script src='assets/js/app.js'></script>
 
 <link rel="apple-touch-icon" sizes="57x57" href="assets/images/favicon/apple-touch-icon-57x57.png">
@@ -85,7 +86,7 @@
 <section>
 <div class="wrap cf">
 
-<div class="m-all t-all d-all">
+<div id="header" class="m-all t-all d-all">
 
 		<div class="m-all t-1of4 d-1of4">
 			<h1 class="top">原発事故 避難者の声</h1>
@@ -95,14 +96,11 @@
 			<div id="radioBlock">
 			</div>
 		</div>
-</div>
+</div><!-- #header -->
 
-<div id="wrapShadow" class="m-all t-all d-all">
 
 <div id="submenu" class="m-all t-all d-all">
-		<div class="m-all tall d-all">
-			<div id="submenu0">&nbsp;
-			</div>
+			<div id="submenu0" class="submenu">&nbsp;</div>
 
 			<div id="submenu1" class="submenu">
 				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_age_2040.png" />20-40代</div>
@@ -115,15 +113,35 @@
 				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_area_4.png" />避難指示解除準備区域</div>
 			</div>
 			<div id="submenu3" class="submenu">
-				<div class="m-1of2 t-1of2 d-1of2 nav"><img src="assets/images/icon_sex_male.png" />男性</div>
-				<div class="m-1of2 t-1of2 d-1of2 nav"><img src="assets/images/icon_sex_female.png" />女性</div>
+				<div class="m-1of2 t-1of2 d-1of2 nav"><img src="assets/images/icon_gender_male.png" />男性</div>
+				<div class="m-1of2 t-1of2 d-1of2 nav"><img src="assets/images/icon_gender_female.png" />女性</div>
 			</div>
-		</div>
 </div><!-- #submenu -->
 
 
-
 <div id="svgContainer">
+
+	<div id="description">
+		<div class="containerDetail">
+<p>このサイトは、ＮＨＫ福島放送局が実施した、福島第一原子力発電所の事故で避難している住民へのアンケートを基に制作しました。アンケート末尾の自由記述欄を「ワードクラウド」と呼ばれる手法で表現しています。単語をクリックすると、単語に紐づいた自由記述欄を読むことができます。</p>
+
+<ul>
+<li>アンケートは、２０１４年１１月～１２月にかけて、原発事故の避難区域のうち、原発から半径１０キロ圏内にある大熊町、双葉町、浪江町、富岡町の４つの町から県の内外に避難している住民５０００人を対象に行い、２０％余りに当たる１１５４人から回答を得ました。</li>
+<li>ワードクラウドとは、文章中で出現頻度が高い単語を複数選びだし、出現頻度に応じた大きさで図示する表現手法です。単語の抽出は、以下の形態素解析エンジンと辞書を利用し、名詞のみを抽出し集計しました。</li>
+	<ul>
+		<li>利用した形態素解析エンジン：MeCab (version: 0.996)</li>
+		<li>利用した辞書：mecab-ipadic-neologd (version: 102)</li>
+	</ul>
+<li>自由記述欄はアンケートの末尾に設けられ、将来の住まいや町の姿に関する要望や意見を伺いました。できるかぎり原文に忠実に掲載していますが、一部には、読みやすいように句読点を付け加えています。また、ワードクラウドを制作するにあたって、単語表記はＮＨＫの基準に合わせました。（例）「子供」→「子ども」</li>
+</ul>
+
+<p>制作）山本 智　管野 彰彦　片山 大輔　矢崎 裕一（visualizing.jp）</p>
+
+<div id="abouLinkTextClose">閉じる</div>
+
+
+		</div>
+	</div>
 
 	<div id="container0">
 		<div id="svgcontainer0" class="container"></div>
@@ -143,11 +161,22 @@
 		<div id="svgcontainer7" class="container"></div>
 		<div id="svgcontainer8" class="container"></div>
 	</div>
+
 </div><!-- #svgContainer -->
 
-</div><!-- #wrapShadow -->
 
-</div>
+
+
+
+
+<div id="header" class="m-all t-all d-all">
+		<div class="m-all t-1of3 d-1of3">&nbsp;</div>
+		<div class="m-all t-1of3 d-1of3 about"><p id="abouLinkTextOpen">このサイトについて</p></div>
+		<div class="m-all t-1of3 d-1of3">&nbsp;</div>
+</div><!-- #header -->
+
+
+</div><!-- .wrap -->
 
 
 <div id="footerContainer" class="m-all t-all d-all">

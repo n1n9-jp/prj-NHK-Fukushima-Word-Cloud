@@ -98,6 +98,31 @@ $(document).ready(function(){
 	widthArray[8] = 600;
 
 
+	var transWidth = new Array();
+	transWidth[0] = width/2;
+	transWidth[1] = widthArray[1]/2;
+	transWidth[2] = widthArray[2]/2;
+	transWidth[3] = widthArray[3]/2;
+	transWidth[4] = widthArray[4]/2;
+	transWidth[5] = widthArray[5]/2;
+	transWidth[6] = widthArray[6]/2;
+	transWidth[7] = widthArray[7]/2;
+	transWidth[8] = widthArray[8]/2;
+
+
+	var transHeight = new Array();
+	transHeight[0] = height/2;
+	transHeight[1] = height/2;
+	transHeight[2] = height/2;
+	transHeight[3] = height/2;
+	transHeight[4] = height/2;
+	transHeight[5] = height/2;
+	transHeight[6] = height/2;
+	transHeight[7] = height/2;
+	transHeight[8] = height/2;
+
+
+
 	/* all */
 	vis[0] = d3.select("#svgcontainer0").append("svg")
 	    .attr("width", widthArray[0])
@@ -106,7 +131,8 @@ $(document).ready(function(){
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea0")
 	  .append("g")
-	    .attr("transform", "translate(" + width/2 + "," + height/2 + ")");
+	    .attr("transform", "translate(" + transWidth[0] + "," + transHeight[0] + ")");
+
 
 
 
@@ -118,7 +144,7 @@ $(document).ready(function(){
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea1")
 	  .append("g")
-	     .attr("transform", "translate(" + widthArray[1]/2 + "," + height/2 + ")");
+	     .attr("transform", "translate(" + transWidth[1] + "," + transHeight[1] + ")");
 
 	vis[2] = d3.select("#svgcontainer2").append("svg")
 	    .attr("width", widthArray[2])
@@ -128,7 +154,7 @@ $(document).ready(function(){
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea2")
 	  .append("g")
-	     .attr("transform", "translate(" + widthArray[2]/2 + "," + height/2 + ")");
+	     .attr("transform", "translate(" + transWidth[2] + "," + transHeight[2] + ")");
 
 	vis[3] = d3.select("#svgcontainer3").append("svg")
 	    .attr("width", widthArray[3])
@@ -138,7 +164,7 @@ $(document).ready(function(){
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea3")
 	  .append("g")
-	     .attr("transform", "translate(" + widthArray[3]/2 + "," + height/2 + ")");
+	     .attr("transform", "translate(" + transWidth[3] + "," + transHeight[3] + ")");
 
 
 
@@ -150,7 +176,7 @@ $(document).ready(function(){
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea4")
 	  .append("g")
-	    .attr("transform", "translate(" + widthArray[4]/2 + "," + height/2 + ")");
+	    .attr("transform", "translate(" + transWidth[4] + "," +transHeight[4] + ")");
 
 	vis[5] = d3.select("#svgcontainer5").append("svg")
 	    .attr("width", widthArray[5])
@@ -160,7 +186,7 @@ $(document).ready(function(){
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea5")
 	  .append("g")
-	    .attr("transform", "translate(" + widthArray[5]/2 + "," + height/2 + ")");
+	    .attr("transform", "translate(" + transWidth[5] + "," + transHeight[5] + ")");
 
 	vis[6] = d3.select("#svgcontainer6").append("svg")
 	    .attr("width", widthArray[6])
@@ -170,7 +196,7 @@ $(document).ready(function(){
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea6")
 	  .append("g")
-	    .attr("transform", "translate(" + widthArray[6]/2 + "," + height/2 + ")");
+	    .attr("transform", "translate(" + transWidth[6] + "," + transHeight[6] + ")");
 
 
 
@@ -182,7 +208,7 @@ $(document).ready(function(){
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea7")
 	  .append("g")
-	    .attr("transform", "translate(" + widthArray[7]/2 + "," + height/2 + ")");
+	    .attr("transform", "translate(" + transWidth[7] + "," + transHeight[7] + ")");
 
 	vis[8] = d3.select("#svgcontainer8").append("svg")
 	    .attr("width", widthArray[8])
@@ -192,8 +218,7 @@ $(document).ready(function(){
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea8")
 	  .append("g")
-	    .attr("transform", "translate(" + widthArray[8]/2 + "," + height/2 + ")");
-
+	    .attr("transform", "translate(" + transWidth[8] + "," + transHeight[8] + ")");
 
 
 
@@ -207,6 +232,15 @@ $(document).ready(function(){
 
     	var tags = new Array();
 
+    	var aboutFlg = "close";
+
+    	// var tempWholeX = 0;
+    	// var tempWholeY = 0;
+
+    	// var tempWholeX = width/2;
+    	// var tempWholeY = height/2;
+
+
 	    var grayScale = d3.scale.linear()
 	      .domain([1, 80])
 	      .range(["#BBB", "#FFF"]);
@@ -214,6 +248,7 @@ $(document).ready(function(){
 	    this.init = function() {
 	        this.e.subscribe( 'load', this.getData );
 	        this.e.subscribe( 'draw:viewport', this.drawViewport );
+	        this.e.subscribe( 'draw:about', this.aboutLink );
         	this.e.subscribe( 'draw:update', this.drawUpdate );
 	        this.e.subscribe( 'container:disappear', this.disappearContainer );
 	        this.e.subscribe( 'container:appear', this.appearContainer );
@@ -221,6 +256,43 @@ $(document).ready(function(){
 
 	        this.e.publish( 'load' );
 	    };
+
+
+	    this.aboutLink = function() {
+
+
+		    $("#abouLinkTextOpen").click(function(){
+		                                    
+		        if(aboutFlg == "close"){
+		        		console.log("close");
+
+						$("#description").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+						$("#container" + currentNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+
+						$("#abouLinkText").text("☓ 閉じる");
+						aboutFlg = "open";
+		        };
+
+		    });
+
+
+		    $("#abouLinkTextClose").click(function(){
+		                                    
+		        if(aboutFlg == "open"){
+						$("#description").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+						$("#container" + currentNum).animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+
+						$("#abouLinkText").text("このサイトについて");
+						aboutFlg = "close";
+		        };
+
+		    });
+
+
+	    }
+
+
+
 
 
 		this.getData = function() {
@@ -317,7 +389,7 @@ $(document).ready(function(){
 
 
 	    this.drawUpdate = function() {
-	    	console.log("drawUpdate"); // x9
+	    	//console.log("drawUpdate"); // x9
 
 	    	if (vid == 0) {
 	        	layout1.stop().words( tags[vid] ).start();
@@ -337,7 +409,7 @@ $(document).ready(function(){
 	    	var _width = widthArray[vid];
 
 
-	    	console.log("vid", vid);
+	    	//console.log("vid", vid);
 	    	//console.log("_width", _width);
 
 
@@ -391,23 +463,48 @@ $(document).ready(function(){
 	                    return d.text;
 	                })
 	                .on("mouseover", function (d, i){
-					    d3.select("#"+ d.text + i).transition().duration(40).style({fill:'#000000'});
+					    d3.select("#"+ d.text + i).transition().duration(40).style({fill:'#000000'}).style("cursor", "pointer");
 	                })
 	                .on("mouseout", function (d, i){
-					    d3.select("#"+ d.text + i).transition().duration(2000).style("fill", function(d){
+					    d3.select("#"+ d.text + i).transition().duration(400).style("fill", function(d){
 							return grayScale( +d.value );
 	                	})
 	            	})
 	                .on("click", function (d, i){
+
+					    d3.select("#"+ d.text + i).transition().duration(0).style("fill", function(d){
+							return grayScale( +d.value );
+	                	})
+
 	                	selectedWord = d.text;
+
+	                	var _r = d.rotate * -1;
+	                	var _tx = transWidth[0] - d3.transform(d3.select(this).attr("transform")).translate[0];
+	                	var _ty = transHeight[0] - d3.transform(d3.select(this).attr("transform")).translate[1]-100;	                	
+
+
+	                	d3.select(this.parentNode).transition().duration(1000).delay(1000).attr("transform", function(d) {
+	                    	return "translate(" + _tx + "," + _ty + ")";
+	                	});
+
+
+
+	                	d3.select(this.parentNode).selectAll("text").transition().duration(500).style("fill-opacity", .0);
+	                	d3.select(this).transition().duration(50).style("fill-opacity", 1.0);
+
+
 	                    self.e.publish('show:detail');
 	                });
 
 	        vid++;
 	        if (vid<9) {
 	            self.e.publish('draw:update');
+	            self.e.publish('draw:about');
 	        }
 	    }
+
+
+
 
 
 	    this.showDetail = function() {
@@ -419,18 +516,38 @@ $(document).ready(function(){
 
 	    			var _age 		= detailWords[i]["age"];
 	    			var _sex 		= detailWords[i]["sex"];
-	    			var _area 		= detailWords[i]["area"];
+	    			var _area 		= parseInt( detailWords[i]["area"] );
 	    			var _keyword	= detailWords[i]["keyword"];	
 	    			var _expression = detailWords[i]["expression"];	    				    			
 	    		}
 	    	};
 
+	    	var _areatext;
+	    	console.log(_area);
+
+			switch (_area) {
+				case 0:
+				  _areatext = "";
+				  break;
+				case 1:
+				  _areatext = "帰還困難区域";
+				  break;
+				case 2:
+				  _areatext = "帰還困難区域";
+				  break;
+				case 3:
+				  _areatext = "居住制限区域";
+				  break;
+				case 4:
+				  _areatext = "避難指示解除準備区域";
+				  break;
+			}
 
 		    var options = {
-		        title : "避難者の声",
-		        content : '<div class="attr age">年齢：' + _age + '</div><div class="attr age">性別：' + _sex + '</div><div class="attr area">地区区分：'+ _area + '</div><div class="attr area">選ばれた言葉：' + _keyword + '</div><div class="attr area">自由記述：' + _expression + '</div>',
+		        title : '避難者の声' + '<div class="attr age">' + _sex + ' ' + _age + '歳 '+ _areatext + '</div>',
+		        content : '<div class="attr area">' + _expression + '</div>',
 		        buttons : [{
-		            label: "閉じる"
+		            label: '閉じる'
 		        }]
 		    };
 
@@ -493,10 +610,8 @@ $(document).ready(function(){
 			console.log("prevNum", prevNum);
 			console.log("currentNum", currentNum);
 
-			// $("#container" + prevNum).fadeOut('slow', function() {
-			// });
-			$("#container" + prevNum).animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'} );
-			$("#submenu" + prevNum).animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'} );
+			$("#container" + prevNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+			$("#submenu" + prevNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
 			self.e.publish('container:appear');
 		    
 		}
@@ -504,19 +619,52 @@ $(document).ready(function(){
 
 		this.appearContainer = function() {
 
-			console.log("here.");
 			$("#container" + currentNum).animate( { opacity: 'show'}, { duration: 1000, easing: 'swing'} );
 			$("#submenu" + currentNum).animate( { opacity: 'show'}, { duration: 1000, easing: 'swing'} );
-			//d3.select("#container" + currentNum).style("opacity", 1.0);
+
+		}
+
+
+		this.opacityFull = function() {
+			vis[currentNum].selectAll("text").transition().duration(1000).style("fill-opacity", 1.0);
 		}
 
 
 		this.init.apply( this, arguments );
 	};
 
-	new Graph;
+	gg = new Graph;
+
+
+
 
 });
+
+var gg;
+
+
+function closeDetailBtn() {
+		gg.opacityFull();
+}
+
+
+
+
+
+
+// $( "#aboutContainer" ).mouseenter(function() {
+// 	$(this).find('img').transition({
+// 	  y: '-400px'
+// 	});
+// });
+
+// $( ".item" ).mouseleave(function() {
+// 	$(this).find('img').transition({
+// 	  perspective: '200px',
+// 	  rotate3d: '0,0,0,0deg'
+// 	}).stop();
+// });
+
 
 
 /* ---------------
