@@ -55,15 +55,12 @@ $(document).ready(function(){
 	/* ---------------
 	Initialize
 	--------------- */
-	// d3.select("#container1").style("opacity", 0.0);
-	// d3.select("#container2").style("opacity", 0.0);
-	// d3.select("#container3").style("opacity", 0.0);
 
-	var vis = new Array(); var vid = 0;
+	var vis = new Array(); var vid = 1; var vidId = 0;
     var fontSizeScale = d3.scale['sqrt']().range([14, 180]);
     var layout1, layout2, layout3;
     var selectedWord="";
-    var detailWords;
+    var detailWords, allOpenText;
 
 	/* ---------------
 	Viewport
@@ -72,16 +69,6 @@ $(document).ready(function(){
 	var margin = {top: 0, right: 0, bottom: 0, left: 0},
 	    width  = bWidth  - margin.left - margin.right,
 	    height = bHeight - margin.top - margin.bottom;
-
-	// var svgContainer = d3.select("#svgContainer").append("svg")
-	//     .attr("width", width + margin.left + margin.right)
-	//     .attr("height", height + margin.top + margin.bottom)
-	//     .attr("viewBox", "0 0 1200 500")
-	//     .attr("preserveAspectRatio", "xMidYMid")
-	//     .attr("id", "chartArea")
-	//   .append("g")
-	//     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 
 
 
@@ -132,7 +119,6 @@ $(document).ready(function(){
 	    .attr("id", "chartArea0")
 	  .append("g")
 	    .attr("transform", "translate(" + transWidth[0] + "," + transHeight[0] + ")");
-
 
 
 
@@ -233,12 +219,7 @@ $(document).ready(function(){
     	var tags = new Array();
 
     	var aboutFlg = "close";
-
-    	// var tempWholeX = 0;
-    	// var tempWholeY = 0;
-
-    	// var tempWholeX = width/2;
-    	// var tempWholeY = height/2;
+    	var firstFlg = false;
 
 
 	    var grayScale = d3.scale.linear()
@@ -247,24 +228,24 @@ $(document).ready(function(){
 
 	    this.init = function() {
 	        this.e.subscribe( 'load', this.getData );
-	        this.e.subscribe( 'draw:viewport', this.drawViewport );
-	        this.e.subscribe( 'draw:about', this.aboutLink );
-        	this.e.subscribe( 'draw:update', this.drawUpdate );
+	        this.e.subscribe( 'init:viewport', this.initViewport );
+        	this.e.subscribe( 'draw:controll', this.drawControll );
+        	this.e.subscribe( 'draw:whole', this.drawWhole );
 	        this.e.subscribe( 'container:disappear', this.disappearContainer );
 	        this.e.subscribe( 'container:appear', this.appearContainer );
         	this.e.subscribe( 'show:detail', this.showDetail );
+	        this.e.subscribe( 'draw:about', this.aboutLink );
 
 	        this.e.publish( 'load' );
 	    };
 
 
-	    this.aboutLink = function() {
 
+	    this.aboutLink = function() {
 
 		    $("#abouLinkTextOpen").click(function(){
 		                                    
 		        if(aboutFlg == "close"){
-		        		console.log("close");
 
 						$("#description").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
 						$("#container" + currentNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
@@ -272,9 +253,7 @@ $(document).ready(function(){
 						$("#abouLinkText").text("☓ 閉じる");
 						aboutFlg = "open";
 		        };
-
 		    });
-
 
 		    $("#abouLinkTextClose").click(function(){
 		                                    
@@ -285,9 +264,7 @@ $(document).ready(function(){
 						$("#abouLinkText").text("このサイトについて");
 						aboutFlg = "close";
 		        };
-
 		    });
-
 
 	    }
 
@@ -299,6 +276,7 @@ $(document).ready(function(){
 
 		    queue()
 		        .defer(d3.tsv, "assets/data/all.tsv")
+		        .defer(d3.tsv, "assets/data/all_open.tsv")
 		        .defer(d3.tsv, "assets/data/age203040.tsv")
 		        .defer(d3.tsv, "assets/data/age5060.tsv")
 		        .defer(d3.tsv, "assets/data/age70.tsv")
@@ -311,7 +289,7 @@ $(document).ready(function(){
 		        .await(loadReady);
 
 
-		    function loadReady(_error, _all, _age203040, 
+		    function loadReady(_error, _all, _allopen, _age203040, 
 		    					_age5060, _age70, _area12, _area3, _area4, 
 		    					_genderMale, _genderFemale, _detail)
 		    {
@@ -325,18 +303,18 @@ $(document).ready(function(){
 		    	tags[7] = $.extend(true, [], _genderMale);
 		    	tags[8] = $.extend(true, [], _genderFemale);
 
-		    	detailWords = $.extend(true, [], _detail);
-		    	console.log(detailWords);
+		    	allOpenText = $.extend(true, [], _allopen);
 
-            	self.e.publish('draw:viewport');
+		    	detailWords = $.extend(true, [], _detail);
+		    	// console.log(detailWords);
+
+            	self.e.publish('init:viewport');
 		    }
 
 		}
 
 
-	    this.drawViewport = function() {
-
-	    	console.log("drawViewport");
+	    this.initViewport = function() {
 
 	        layout1 = d3.layout.cloud()
 	                .timeInterval(Infinity)
@@ -345,7 +323,6 @@ $(document).ready(function(){
 	                    return fontSizeScale(+d.value);
 	                })
 	                .text(function(d) {
-	                	//console.log("key", d.key);
 	                    return d.key;
 	                })
 	                .on("end", draw);
@@ -359,7 +336,6 @@ $(document).ready(function(){
 	                    return fontSizeScale(+d.value);
 	                })
 	                .text(function(d) {
-	                	//console.log("key", d.key);
 	                    return d.key;
 	                })
 	                .on("end", draw);
@@ -373,23 +349,160 @@ $(document).ready(function(){
 	                    return fontSizeScale(+d.value);
 	                })
 	                .text(function(d) {
-	                	//console.log("key", d.key);
 	                    return d.key;
 	                })
 	                .on("end", draw);
 	        layout3.font('YuGothic').spiral('archimedean');
 
 
-
 	        fontSizeScale.domain([10, 255])
 
-	        self.e.publish('draw:update');
+	        self.e.publish('draw:controll');
+	        self.e.publish('draw:whole');
 
 	    };
 
 
-	    this.drawUpdate = function() {
-	    	//console.log("drawUpdate"); // x9
+
+
+	    this.drawWhole = function() {
+
+	    	//console.log("drawWhole");
+
+	    	var _width = widthArray[0];
+	        vis[0].attr("width", _width).attr("height", height);
+
+
+	        var topText = vis[0].selectAll(".alltext")
+	                .data(allOpenText)
+	                .enter().append("text")
+	                .attr("class", "alltext")
+	                .attr("text-anchor", "middle")
+	                .attr("transform", function(d,i) {
+
+	                	var _x = Math.random() * bWidth/2 - Math.random() * bWidth/2;
+	                	// if (_x>0) {_x = _x + 200 };
+	                	// if (_x<0) {_x = _x - 200 };
+
+	                	var _y = Math.random() * bHeight/2 - Math.random() * bHeight/2;
+	                	// if (_y>0) {_y = _y + 100 };
+	                	// if (_y<0) {_y = _y - 100 };
+
+	                	// console.log(_x);
+	                	// console.log(_y);	                	
+	                    return "translate(" + [_x, _y] + ")";
+	                })
+	                .style("font-size", function(d) {
+	                    return d.size + "px";
+	                })
+					.style("font-family", "Yu Gothic")
+	                .style("fill", function(d) {
+	                    return  d3.rgb( d.rgb, d.rgb, d.rgb );
+	                })
+	                .style("opacity", 0.0)
+	                .attr("id", function(d,i){
+	                	return d.id + vidId + i;
+	                })
+	                .on("mouseover", function (d, i){
+	                	if (firstFlg) {
+					    	d3.select(this).transition().duration(40).style({fill:'#000000'}).style("cursor", "pointer");
+	                	}
+	                })
+	                .on("mouseout", function (d, i){
+	                	if (firstFlg) {
+						    d3.select(this).transition().duration(400).style("fill", function(d){
+								return d3.rgb( d.rgb, d.rgb, d.rgb );
+		                	});
+	                	}
+
+	            	})
+	                .on("click", function (d, i){
+	                	if (firstFlg) {
+
+						    //d3.select("#"+ d.text).transition().duration(0).style("fill", function(d){
+						    d3.select("#"+ d.text + vidId + i).transition().duration(0).style("fill", function(d){
+								return d3.rgb( d.rgb, d.rgb, d.rgb );
+		                	})
+
+		                	selectedWord = d.text;
+
+		                	// var _s = d3.select(this.parentNode.parentNode).attr("id");
+		                	// vidId = parseInt( _s.substr(9, 1) );
+
+		                	vidId = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
+		                	//console.log("vidId", vidId);
+
+		                	var _r = d.rotate * -0.5;
+		                	var _tx = transWidth[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[0];
+		                	var _ty = transHeight[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[1]-100;	                	
+
+		                	d3.select(this.parentNode).transition().duration(1000).delay(1000).attr("transform", function(d) {
+		                    	return "translate(" + _tx + "," + _ty + ")";
+		                	});
+
+		                	//選択した単語以外を非表示にする
+		                	d3.select(this.parentNode).selectAll("text").transition().duration(500).style("opacity", .0);
+		                	d3.select(this).transition().duration(50).style("opacity", 1.0);
+
+		                    self.e.publish('show:detail');
+	                	}
+	                });
+
+
+	        topText.transition()
+	                .duration(function(d,i) {
+	                    return i*500;
+	                })
+	                .style("opacity", function(d) {
+	                    return  "0.4";
+	                })
+	                .text(function(d) {
+	                    return d.text;
+	                });
+
+
+
+	        var messageText = vis[0].selectAll("#mtext")
+	                .data(["被災者の声に耳を傾けてください。"])
+	                .enter().append("text")
+	                .attr("id", "mtext")
+	                .attr("text-anchor", "middle")
+	                .attr("font-weight", "bold")
+	                .attr("transform", function(d,i) {
+	                    return "translate(" + [0, 0] + ")";
+	                })
+	                .style("font-size", "30px")
+					.style("font-family", "Yu Gothic")
+	                .style("fill", function(d) {
+	                    return  d3.rgb( 0, 0, 0 );
+	                })
+	                .style("opacity", 1.0)
+	                .text(function(d) {
+	                    return d;
+	                })
+	                .on("mouseover", function (d, i){
+					    	d3.select(this).transition().duration(1000).style({fill:'#FFFFFF'}).style("cursor", "pointer");
+	                })
+	                .on("mouseout", function (d, i){
+					    	d3.select(this).transition().duration(100).style({fill:'#000000'});
+	                })
+	                .on("click", function (d, i){
+	                		$("#mtext").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'} );
+
+	                		$(".alltext").animate( { opacity: 1.0}, { duration: 2000, easing: 'swing'} );
+	                		d3.selectAll(".alltext").transition().duration(2000).attr("transform", function(d,i) {
+	                    			return "translate(" + [d.translate0, d.translate1] + ")rotate(" + d.rotate + ")";
+	                		});
+		                	firstFlg = true;
+	                });
+
+
+	    };
+
+
+
+
+	    this.drawControll = function() {
 
 	    	if (vid == 0) {
 	        	layout1.stop().words( tags[vid] ).start();
@@ -401,17 +514,17 @@ $(document).ready(function(){
 
 	    };
 
+	    function detectSvgNum(_string) {
+
+	    	return parseInt( _string.substr(9, 1) );
+	    }
 
 
 	    function draw(data, bounds) {
 
-	    	//console.log("bounds", bounds);
-	    	var _width = widthArray[vid];
-
-
 	    	//console.log("vid", vid);
-	    	//console.log("_width", _width);
 
+	    	var _width = widthArray[vid];
 
 	        vis[vid].attr("width", _width).attr("height", height);
 
@@ -447,8 +560,6 @@ $(document).ready(function(){
 	                .transition()
 	                .duration(1000);
 
-
-
 	        text.style("font-family", function(d) {
 	                    return d.font;
 	                })
@@ -457,40 +568,107 @@ $(document).ready(function(){
 	                })
 	                .style("opacity", 1.0)
 	                .attr("id", function(d,i){
-	                	return d.text + i;
+	                	//console.log(d.text + vid + i);
+	                	return d.text + vid + i;
+	                	//return d.text;
 	                })
 	                .text(function(d) {
 	                    return d.text;
 	                })
 	                .on("mouseover", function (d, i){
-					    d3.select("#"+ d.text + i).transition().duration(40).style({fill:'#000000'}).style("cursor", "pointer");
+
+	                	var _v = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
+					    d3.select("#"+ d.text + _v + i).transition().duration(40).style({fill:'#000000'}).style("cursor", "pointer");
+
 	                })
 	                .on("mouseout", function (d, i){
-					    d3.select("#"+ d.text + i).transition().duration(400).style("fill", function(d){
+
+	                	var _v = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
+
+					    d3.select("#"+ d.text + _v + i).transition().duration(400).style("fill", function(d){
 							return grayScale( +d.value );
 	                	})
 	            	})
 	                .on("click", function (d, i){
 
-					    d3.select("#"+ d.text + i).transition().duration(0).style("fill", function(d){
+	                	var _v = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
+
+					    d3.select("#"+ d.text + _v + i).transition().duration(0).style("fill", function(d){
 							return grayScale( +d.value );
 	                	})
 
 	                	selectedWord = d.text;
 
-	                	var _r = d.rotate * -1;
-	                	var _tx = transWidth[0] - d3.transform(d3.select(this).attr("transform")).translate[0];
-	                	var _ty = transHeight[0] - d3.transform(d3.select(this).attr("transform")).translate[1]-100;	                	
+		                vidId = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
 
+	                	// var _s = d3.select(this.parentNode.parentNode).attr("id");
+	                	// vidId = parseInt( _s.substr(9, 1) );
+	                	//console.log("vidId", vidId);
+
+	                	var _r = d.rotate * -0.5;
+	                	var _tx = transWidth[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[0];
+	                	var _ty = transHeight[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[1]-100;	                	
 
 	                	d3.select(this.parentNode).transition().duration(1000).delay(1000).attr("transform", function(d) {
 	                    	return "translate(" + _tx + "," + _ty + ")";
 	                	});
 
+	                	//選択した単語以外を非表示にする
+	                	d3.select(this.parentNode).selectAll("text").transition().duration(500).style("opacity", .0);
+	                	d3.select(this).transition().duration(50).style("opacity", 1.0);
 
 
-	                	d3.select(this.parentNode).selectAll("text").transition().duration(500).style("fill-opacity", .0);
-	                	d3.select(this).transition().duration(50).style("fill-opacity", 1.0);
+
+
+						switch (vidId) {
+							case 0:
+							  break;
+
+
+							case 1:
+								console.log("1");
+								d3.select("#chartArea2").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea3").transition().duration(100).style("opacity", 0.0);
+							  break;
+							case 2:
+								console.log("2");
+								d3.select("#chartArea1").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea3").transition().duration(100).style("opacity", 0.0);
+							  break;
+							case 3:
+								console.log("3");
+								d3.select("#chartArea1").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea2").transition().duration(100).style("opacity", 0.0);
+							  break;
+
+
+							case 4:
+								console.log("4");
+								d3.select("#chartArea5").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea6").transition().duration(100).style("opacity", 0.0);
+							  break;
+							case 5:
+								console.log("5");
+								d3.select("#chartArea4").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea6").transition().duration(100).style("opacity", 0.0);
+							  break;
+							case 6:
+								console.log("6");
+								d3.select("#chartArea4").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea5").transition().duration(100).style("opacity", 0.0);
+							  break;
+
+
+							case 7:
+								console.log("7");
+								d3.select("#chartArea8").transition().duration(100).style("opacity", 0.0);
+							  break;
+							case 8:
+								console.log("8");
+								d3.select("#chartArea7").transition().duration(100).style("opacity", 0.0);
+							  break;
+						}
+
 
 
 	                    self.e.publish('show:detail');
@@ -498,7 +676,8 @@ $(document).ready(function(){
 
 	        vid++;
 	        if (vid<9) {
-	            self.e.publish('draw:update');
+	            self.e.publish('draw:controll');
+	        } else {
 	            self.e.publish('draw:about');
 	        }
 	    }
@@ -512,7 +691,7 @@ $(document).ready(function(){
 
 	    	for (var i=0; i<detailWords.length; i++) {
 	    		if (detailWords[i]["keyword"] == selectedWord) {
-	    			console.log(detailWords[i]["keyword"], detailWords[i]["expression"]);
+	    			//console.log(detailWords[i]["keyword"], detailWords[i]["expression"]);
 
 	    			var _age 		= detailWords[i]["age"];
 	    			var _sex 		= detailWords[i]["sex"];
@@ -523,7 +702,7 @@ $(document).ready(function(){
 	    	};
 
 	    	var _areatext;
-	    	console.log(_area);
+	    	// console.log(_area);
 
 			switch (_area) {
 				case 0:
@@ -543,8 +722,12 @@ $(document).ready(function(){
 				  break;
 			}
 
+			if (_age != "") {
+				_age += '歳 ';
+			}
+
 		    var options = {
-		        title : '避難者の声' + '<div class="attr age">' + _sex + ' ' + _age + '歳 '+ _areatext + '</div>',
+		        title : '避難者の声' + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>',
 		        content : '<div class="attr area">' + _expression + '</div>',
 		        buttons : [{
 		            label: '閉じる'
@@ -566,7 +749,7 @@ $(document).ready(function(){
 	    var currentNum = 0, prevNum = 0;
 
 		var menuItems = d3.select("#radioBlock").append('form').selectAll("span")
-		    .data( ["全体", "年齢", "区域", "性別"] )
+		    .data( ["全体", "年齢別", "避難区域別", "性別"] )
 		    .enter().append("span").attr("class", "navColumn");
 
 		menuItems.append("input")
@@ -588,7 +771,8 @@ $(document).ready(function(){
 			.on("change", function(d,i){
 				prevNum = currentNum;
 		      	currentNum = i;
-				console.log(currentNum);
+
+		      	console.log("currentNum", currentNum);
 				self.e.publish('container:disappear');
 		});
 
@@ -600,15 +784,11 @@ $(document).ready(function(){
 		        class: "btn"
 		    })
 			.text(function(d,i) {
-				console.log(d);
 				return d;
 			});
 
 
 		this.disappearContainer = function() {
-
-			console.log("prevNum", prevNum);
-			console.log("currentNum", currentNum);
 
 			$("#container" + prevNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
 			$("#submenu" + prevNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
@@ -626,7 +806,70 @@ $(document).ready(function(){
 
 
 		this.opacityFull = function() {
-			vis[currentNum].selectAll("text").transition().duration(1000).style("fill-opacity", 1.0);
+
+			/*
+			area appear
+			*/
+			switch (vidId) {
+				case 0:
+				  break;
+
+
+				case 1:
+					console.log("1");
+					d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
+					d3.select("#chartArea3").transition().duration(100).style("opacity", 1.0);
+				  break;
+				case 2:
+					console.log("2");
+					d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
+					d3.select("#chartArea3").transition().duration(100).style("opacity", 1.0);
+				  break;
+				case 3:
+					console.log("3");
+					d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
+					d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
+				  break;
+
+
+				case 4:
+					console.log("4");
+					d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
+					d3.select("#chartArea6").transition().duration(100).style("opacity", 1.0);
+				  break;
+				case 5:
+					console.log("5");
+					d3.select("#chartArea4").transition().duration(100).style("opacity", 1.0);
+					d3.select("#chartArea6").transition().duration(100).style("opacity", 1.0);
+				  break;
+				case 6:
+					console.log("6");
+					d3.select("#chartArea4").transition().duration(100).style("opacity", 1.0);
+					d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
+				  break;
+
+
+				case 7:
+					console.log("7");
+					d3.select("#chartArea8").transition().duration(100).style("opacity", 1.0);
+				  break;
+				case 8:
+					console.log("8");
+					d3.select("#chartArea7").transition().duration(100).style("opacity", 1.0);
+				  break;
+			}
+
+
+			/*
+			letter appear
+			*/
+			vis[vidId].selectAll("text").transition().duration(1000).style("opacity", 1.0);
+	                	
+        	vis[vidId].transition().duration(1000).delay(0).attr("transform", function(d) {
+            	// return "translate(" + transWidth[currentNum] + "," + transHeight[currentNum] + ")";
+            	return "translate(" + transWidth[vidId] + "," + transHeight[vidId] + ")";
+        	});
+
 		}
 
 
@@ -643,27 +886,13 @@ $(document).ready(function(){
 var gg;
 
 
+//モーダルウインドウを閉じたら
 function closeDetailBtn() {
 		gg.opacityFull();
 }
 
 
 
-
-
-
-// $( "#aboutContainer" ).mouseenter(function() {
-// 	$(this).find('img').transition({
-// 	  y: '-400px'
-// 	});
-// });
-
-// $( ".item" ).mouseleave(function() {
-// 	$(this).find('img').transition({
-// 	  perspective: '200px',
-// 	  rotate3d: '0,0,0,0deg'
-// 	}).stop();
-// });
 
 
 

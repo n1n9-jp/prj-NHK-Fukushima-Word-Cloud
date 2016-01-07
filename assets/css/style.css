@@ -893,7 +893,6 @@ button
   vertical-align: middle; }
 
 #radioBlock {
-  margin-top: 1rem;
   float: right; }
 
 /*
@@ -920,21 +919,23 @@ input[type=radio] + label {
   cursor: pointer;
   background-repeat: repeat-x;
   background-color: #808080;
-  border-bottom-color: #b3b3b3;
-  border-bottom: 4px #666 solid; }
+  border-top-color: #b3b3b3;
+  border-top: 4px #666 solid; }
 
 input[type=radio] + label:hover {
-  color: #000000; }
+  color: #000000;
+  background-color: #FFFFFF; }
 
 input[type=radio] + label:active {
+  color: #000000;
   background-color: #FFFFFF; }
 
 input[type=radio]:checked + label {
   outline: 0;
   background-color: #FFFFFF;
   color: #888;
-  border-bottom-color: #b3b3b3;
-  border-bottom: 3px #FFFFFF solid; }
+  border-top-color: #b3b3b3;
+  border-top: 4px #666 solid; }
 
 /* ------------------------------
 footer
@@ -942,7 +943,7 @@ footer
 p.nhklogo {
   float: left;
   margin: 4px 0 0 20px;
-  width: 70px; }
+  width: 150px; }
 
 .nhktxt {
   float: left;
