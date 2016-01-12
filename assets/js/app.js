@@ -52,9 +52,17 @@ $(document).ready(function(){
 	var eventer = new Eventer;
 
 
+	// $("#submenu1").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+	// $("#submenu2").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+	// $("#submenu3").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+
+
 	/* ---------------
 	Initialize
 	--------------- */
+
+	var currentNum = 0, prevNum = 0;
+
 
 	var vis = new Array(); var vid = 1; var vidId = 0;
     var fontSizeScale = d3.scale['sqrt']().range([14, 180]);
@@ -69,9 +77,9 @@ $(document).ready(function(){
 	var margin = {top: 0, right: 0, bottom: 0, left: 0},
 	    width  = bWidth  - margin.left - margin.right,
 	    height = bHeight - margin.top - margin.bottom;
+	var aspect = bWidth / bHeight;
 
-
-
+	nowWidth = bWidth, nowHeight = bHeight;
 
 	var widthArray = new Array();
 	widthArray[0] = 1200;
@@ -209,8 +217,6 @@ $(document).ready(function(){
 
 
 
-
-
 	var Graph = function() {
 
 	    var self = this;
@@ -224,7 +230,7 @@ $(document).ready(function(){
 
 	    var grayScale = d3.scale.linear()
 	      .domain([1, 80])
-	      .range(["#BBB", "#FFF"]);
+	      .range(["#DDD", "#FFF"]);
 
 	    this.init = function() {
 	        this.e.subscribe( 'load', this.getData );
@@ -241,29 +247,43 @@ $(document).ready(function(){
 
 
 
+
 	    this.aboutLink = function() {
 
-		    $("#abouLinkTextOpen").click(function(){
+		    $("#aboutLink").click(function(){
 		                                    
-		        if(aboutFlg == "close"){
+		        if(aboutFlg == "close"){ //open about
 
-						$("#description").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+						$("#description").animate( { opacity: 'show'}, { duration: 600, easing: 'swing'} );
 						$("#container" + currentNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+						$("#radioBlock").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+						$("#submenuBlock").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
 
-						$("#abouLinkText").text("☓ 閉じる");
+						$("#abouLinkText").text("閉じる");
 						aboutFlg = "open";
+
+		        } else  if(aboutFlg == "open"){ //close about
+						$("#description").animate( { opacity: 'hide'}, { duration: 100, easing: 'swing'} );
+						$("#container" + currentNum).animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+						$("#radioBlock").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+						$("#submenuBlock").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+
+						$("#abouLinkText").text("このサイトについて");
+
+						resizeSVG();
+						aboutFlg = "close";
 		        };
 		    });
 
-		    $("#abouLinkTextClose").click(function(){
-		                                    
-		        if(aboutFlg == "open"){
-						$("#description").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
-						$("#container" + currentNum).animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
 
-						$("#abouLinkText").text("このサイトについて");
-						aboutFlg = "close";
-		        };
+
+
+		    $("#aboutLink").mouseover(function(){
+				d3.select(this).transition().duration(0).style({fill:'#999999'}).style("cursor", "pointer");
+		    });
+
+		    $("#aboutLink").mouseout(function(){
+				d3.select(this).transition().duration(0).style({fill:'#333333'});
 		    });
 
 	    }
@@ -380,11 +400,48 @@ $(document).ready(function(){
 	                .attr("text-anchor", "middle")
 	                .attr("transform", function(d,i) {
 
-	                	var _x = Math.random() * bWidth/2 - Math.random() * bWidth/2;
-	                	// if (_x>0) {_x = _x + 200 };
-	                	// if (_x<0) {_x = _x - 200 };
+	                	// if (i%4 == 0) { //上端
 
-	                	var _y = Math.random() * bHeight/2 - Math.random() * bHeight/2;
+		                // 	var _x = Math.random() * nowWidth;
+		                // 	var _y = Math.random() * 10;
+
+	                	// } else if (i%3 == 0) { //下端
+
+	                	// 	var _x = Math.random() * nowWidth;
+		                // 	var _y = Math.random() * nowHeight - 10;
+
+	                	// } else if (i%2 == 0) { //左端
+
+	                	// 	var _x = Math.random() * 10;
+		                // 	var _y = Math.random() * nowHeight;
+
+	                	// } else { //右端
+
+	                	// 	var _x = Math.random() * nowWidth - 10;
+		                // 	var _y = Math.random() * nowHeight;
+
+	                	// }
+
+	                	var _x = (Math.random() * nowWidth)/2;
+	                	var _y = (Math.random() * nowHeight)/2;
+
+
+	                	if (i%2 == 0) {
+
+	                		_x *= -1; _y *= -1;
+
+	                	};
+
+
+	                	// var _r = Math.random() * 360;
+
+
+
+	                	// var _x = Math.random() * bWidth/2 - Math.random() * bWidth/2;
+	                	// // if (_x>0) {_x = _x + 200 };
+	                	// // if (_x<0) {_x = _x - 200 };
+
+	                	// var _y = Math.random() * bHeight/2 - Math.random() * bHeight/2;
 	                	// if (_y>0) {_y = _y + 100 };
 	                	// if (_y<0) {_y = _y - 100 };
 
@@ -400,6 +457,9 @@ $(document).ready(function(){
 	                    return  d3.rgb( d.rgb, d.rgb, d.rgb );
 	                })
 	                .style("opacity", 0.0)
+					.style("text-shadow", function(d){
+						return "2px 2px 0 #999";
+					})
 	                .attr("id", function(d,i){
 	                	return d.id + vidId + i;
 	                })
@@ -487,6 +547,7 @@ $(document).ready(function(){
 					    	d3.select(this).transition().duration(100).style({fill:'#000000'});
 	                })
 	                .on("click", function (d, i){
+
 	                		$("#mtext").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'} );
 
 	                		$(".alltext").animate( { opacity: 1.0}, { duration: 2000, easing: 'swing'} );
@@ -567,6 +628,9 @@ $(document).ready(function(){
 	                    return grayScale( +d.value );
 	                })
 	                .style("opacity", 1.0)
+					.style("text-shadow", function(d){
+						return "1px 1px 0 #999";
+					})
 	                .attr("id", function(d,i){
 	                	//console.log(d.text + vid + i);
 	                	return d.text + vid + i;
@@ -691,8 +755,6 @@ $(document).ready(function(){
 
 	    	for (var i=0; i<detailWords.length; i++) {
 	    		if (detailWords[i]["keyword"] == selectedWord) {
-	    			//console.log(detailWords[i]["keyword"], detailWords[i]["expression"]);
-
 	    			var _age 		= detailWords[i]["age"];
 	    			var _sex 		= detailWords[i]["sex"];
 	    			var _area 		= parseInt( detailWords[i]["area"] );
@@ -702,7 +764,7 @@ $(document).ready(function(){
 	    	};
 
 	    	var _areatext;
-	    	// console.log(_area);
+
 
 			switch (_area) {
 				case 0:
@@ -745,8 +807,6 @@ $(document).ready(function(){
 		/* ---------------
 		navigation
 		--------------- */
-		//var menuNum = 4;
-	    var currentNum = 0, prevNum = 0;
 
 		var menuItems = d3.select("#radioBlock").append('form').selectAll("span")
 		    .data( ["全体", "年齢別", "避難区域別", "性別"] )
@@ -771,7 +831,7 @@ $(document).ready(function(){
 			.on("change", function(d,i){
 				prevNum = currentNum;
 		      	currentNum = i;
-
+				resizeSVG();
 		      	console.log("currentNum", currentNum);
 				self.e.publish('container:disappear');
 		});
@@ -791,6 +851,7 @@ $(document).ready(function(){
 		this.disappearContainer = function() {
 
 			$("#container" + prevNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+
 			$("#submenu" + prevNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
 			self.e.publish('container:appear');
 		    
@@ -876,8 +937,95 @@ $(document).ready(function(){
 		this.init.apply( this, arguments );
 	};
 
+
+
+
+	// $("#submenu1").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+	// $("#submenu2").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+	// $("#submenu3").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+
 	gg = new Graph;
 
+
+
+
+	/* ---------------
+	utility: window resize
+	--------------- */
+	var chart0 = $("#chartArea0");
+	var chart1 = $("#chartArea1");
+	var chart2 = $("#chartArea2");
+	var chart3 = $("#chartArea3");
+	var chart4 = $("#chartArea4");
+	var chart5 = $("#chartArea5");
+	var chart6 = $("#chartArea6");
+	var chart7 = $("#chartArea7");
+	var chart8 = $("#chartArea8");
+
+
+
+
+	var container = $("#svgContainerContainer");
+
+	function resizeSVG() {
+
+	    var targetWidth = container.width();
+	    nowWidth = targetWidth;
+	    nowHeight = Math.round(targetWidth / aspect);
+
+
+		switch (currentNum) {
+			case 0:
+			    chart0.attr("width", nowWidth); chart0.attr("height", nowHeight);
+				$("#container0").height(nowHeight);
+				$("#svgcontainer0").height(nowHeight);
+			break;
+
+			case 1:
+			    chart1.attr("width", nowWidth/3); chart1.attr("height", nowHeight);
+			    chart2.attr("width", nowWidth/3); chart2.attr("height", nowHeight);
+			    chart3.attr("width", nowWidth/3); chart3.attr("height", nowHeight);
+				$("#container1").height(nowHeight);
+				$("#svgcontainer1").height(nowHeight);
+				$("#svgcontainer2").height(nowHeight);
+				$("#svgcontainer3").height(nowHeight);
+			  break;
+
+			case 2:
+			    chart4.attr("width", nowWidth/3); chart4.attr("height", nowHeight);
+			    chart5.attr("width", nowWidth/3); chart5.attr("height", nowHeight);
+			    chart6.attr("width", nowWidth/3); chart6.attr("height", nowHeight);
+				$("#container2").height(nowHeight);
+				$("#svgcontainer4").height(nowHeight);
+				$("#svgcontainer5").height(nowHeight);
+				$("#svgcontainer6").height(nowHeight);
+			  break;
+
+			case 3:
+			    chart7.attr("width", nowWidth/2); chart7.attr("height", nowHeight);
+			    chart8.attr("width", nowWidth/2); chart8.attr("height", nowHeight);
+				$("#container3").height(nowHeight);
+				$("#svgcontainer7").height(nowHeight);
+				$("#svgcontainer8").height(nowHeight);
+			  break;
+		}
+
+		$("#description").width(nowWidth);
+		$("#description").height(nowHeight);
+
+		$("#svgContainerContainer").height(nowHeight);
+
+	}
+
+
+
+
+
+	$(window).on("resize", function() {
+
+		resizeSVG();
+
+	}).trigger("resize");
 
 
 
@@ -896,39 +1044,10 @@ function closeDetailBtn() {
 
 
 
-/* ---------------
-utility: window resize
---------------- */
-var _chart0 = $("#chartArea0");
-var _chart1 = $("#chartArea1");
-var _chart2 = $("#chartArea2");
-var _chart3 = $("#chartArea3");
-var _chart4 = $("#chartArea4");
-var _chart5 = $("#chartArea5");
-var _chart6 = $("#chartArea6");
-var _chart7 = $("#chartArea7");
-var _chart8 = $("#chartArea8");
-
-var _chart = $("#chartArea"),
-    aspect = _chart.width() / _chart.height(),
-    container = _chart.parent();
-
-$(window).on("resize", function() {
-    console.log("resized");
-    var targetWidth = container.width();
-    var _w = targetWidth;
-    var _h = Math.round(targetWidth / aspect);
-
-    _chart.attr("width", _w); _chart.attr("height", _h);
-    // _chart0.attr("width", _w); _chart0.attr("height", _h);
-    // _chart1.attr("width", _w); _chart1.attr("height", _h);
-    // _chart2.attr("width", _w); _chart2.attr("height", _h);
-    // _chart3.attr("width", _w); _chart3.attr("height", _h);
-    // _chart4.attr("width", _w); _chart4.attr("height", _h);
-    // _chart5.attr("width", _w); _chart5.attr("height", _h);
-    // _chart6.attr("width", _w); _chart6.attr("height", _h);
-    // _chart7.attr("width", _w); _chart7.attr("height", _h);
-    // _chart8.attr("width", _w); _chart8.attr("height", _h);
 
 
-}).trigger("resize");
+
+
+
+
+

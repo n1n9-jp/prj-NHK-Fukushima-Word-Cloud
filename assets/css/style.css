@@ -739,12 +739,15 @@ a:hover img {
 LAYOUT
 ------------------------------ */
 .wrap {
-  width: 1200px;
+  width: 100%;
   min-height: 100%;
   position: relative;
   margin: 0 auto; }
 
 #header {
+  height: 70px; }
+
+#about {
   height: 70px; }
 
 #footerContainer {
@@ -754,6 +757,10 @@ LAYOUT
   margin: auto;
   position: absolute;
   bottom: 0px; }
+
+#footerInner {
+  width: 80%;
+  margin: 0 auto; }
 
 /* ------------------------------
 STYLE
@@ -806,22 +813,16 @@ ul.filter li {
 /* ------------------------------
 D3.js
 ------------------------------ */
-#svgContainer {
+#svgContainerContainer {
   margin: 0 auto;
   position: relative;
-  height: 500px;
   margin-top: 130px;
-  background-color: #AAAAAA;
   z-index: 0; }
 
 #description {
-  width: 1200px;
-  height: 500px;
   z-index: 20; }
 
 #container0, #container1, #container2, #container3 {
-  width: 1200px;
-  height: 500px;
   z-index: 10; }
 
 #container1, #container2, #container3 {
@@ -833,9 +834,16 @@ D3.js
   color: #FFF; }
 
 .container {
-  position: absolute;
-  left: 0px;
-  top: 0px; }
+  /*
+  	position: absolute;
+  	left: 0px;
+  	top: 0px;
+  */
+  background-color: #999;
+  float: left;
+  box-shadow: rgba(90, 90, 90, 0.6) 0px 0px 50px 3px inset;
+  -webkit-box-shadow: rgba(90, 90, 90, 0.6) 0px 0px 50px 3px inset;
+  -moz-box-shadow: rgba(90, 90, 90, 0.6) 0px 0px 50px 3px inset; }
 
 .containerDetail {
   position: absolute;
@@ -843,37 +851,36 @@ D3.js
   top: 0px;
   padding: 2rem 4rem 4rem 4rem; }
 
-#svgcontainer0 {
-  width: 1200px;
-  height: 500px; }
-
 #svgcontainer1, #svgcontainer2, #svgcontainer3, #svgcontainer4, #svgcontainer5, #svgcontainer6 {
-  width: 400px;
-  height: 500px;
   float: left; }
 
+/*
 #svgcontainer7, #svgcontainer8 {
-  width: 600px;
-  height: 500px; }
+	//width: 600px;
+	//height: 500px;
+}
 
 #svgcontainer2, #svgcontainer5 {
-  margin-left: 400px; }
+	//margin-left: 400px;
+	//float: left;
+}
 
 #svgcontainer3, #svgcontainer6 {
-  margin-left: 800px; }
+	//margin-left: 800px;
+}
 
 #svgcontainer8 {
-  margin-left: 600px; }
+	//margin-left: 600px;
+}
+*/
+.selected {
+  color: #FF0000;
+  font-weight: bold; }
 
 /* ------------------------------
 button
 ------------------------------ */
-#submenu {
-  /*
-  	box-shadow:rgba(0, 0, 0, 0.3) 0px 0px 16px 1px inset;
-  	-webkit-box-shadow:rgba(0, 0, 0, 0.3) 0px 0px 16px 1px inset;
-  	-moz-box-shadow:rgba(0, 0, 0, 0.3) 0px 0px 16px 1px inset;
-  */
+#submenuBlock {
   background-color: #FFF;
   height: 60px; }
 
@@ -942,12 +949,12 @@ footer
 ------------------------------ */
 p.nhklogo {
   float: left;
-  margin: 4px 0 0 20px;
+  margin: 4px  2rem 0 0;
   width: 150px; }
 
 .nhktxt {
   float: left;
-  margin: 0 0 0 2rem;
+  margin: 0;
   color: #333;
   font-size: 0.6em;
   line-height: 0.6em;
@@ -957,8 +964,7 @@ p.nhklogo {
   margin-top: 0rem; }
 
 .sns-btns {
-  float: right;
-  margin-right: 20px; }
+  float: right; }
 
 /* ------------------------------
 z-model
