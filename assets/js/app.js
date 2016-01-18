@@ -1,5 +1,6 @@
 $(document).ready(function(){
 
+
 	/* ---------------
 	Eventer function
 	--------------- */
@@ -69,6 +70,7 @@ $(document).ready(function(){
     var layout1, layout2, layout3;
     var selectedWord="";
     var detailWords, allOpenText;
+    var detailWordsArray = new Array();
 
 	/* ---------------
 	Viewport
@@ -95,12 +97,15 @@ $(document).ready(function(){
 
 	var transWidth = new Array();
 	transWidth[0] = width/2;
+	
 	transWidth[1] = widthArray[1]/2;
 	transWidth[2] = widthArray[2]/2;
 	transWidth[3] = widthArray[3]/2;
+
 	transWidth[4] = widthArray[4]/2;
 	transWidth[5] = widthArray[5]/2;
 	transWidth[6] = widthArray[6]/2;
+	
 	transWidth[7] = widthArray[7]/2;
 	transWidth[8] = widthArray[8]/2;
 
@@ -116,6 +121,7 @@ $(document).ready(function(){
 	transHeight[7] = height/2;
 	transHeight[8] = height/2;
 
+	var container = $("#svgContainerContainer");
 
 
 	/* all */
@@ -134,7 +140,7 @@ $(document).ready(function(){
 	vis[1] = d3.select("#svgcontainer1").append("svg")
 	    .attr("width", widthArray[1])
 	    .attr("height", height)
-	    // .attr("viewBox", "0 0 400 500")
+	    .attr("viewBox", "0 0 400 500")
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea1")
 	  .append("g")
@@ -143,8 +149,8 @@ $(document).ready(function(){
 	vis[2] = d3.select("#svgcontainer2").append("svg")
 	    .attr("width", widthArray[2])
 	    .attr("height", height)
-	    .attr("transform", "translate(" + widthArray[2] + "," + height/2 + ")")
-	    // .attr("viewBox", "0 0 400 500")
+	    // .attr("transform", "translate(" + widthArray[2] + "," + height/2 + ")")
+	    .attr("viewBox", "0 0 400 500")
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea2")
 	  .append("g")
@@ -153,8 +159,8 @@ $(document).ready(function(){
 	vis[3] = d3.select("#svgcontainer3").append("svg")
 	    .attr("width", widthArray[3])
 	    .attr("height", height)
-	    .attr("transform", "translate(" + widthArray[3]*2 + "," + height/2 + ")")
-	    // .attr("viewBox", "0 0 400 500")
+	    // .attr("transform", "translate(" + widthArray[3]*2 + "," + height/2 + ")")
+	    .attr("viewBox", "0 0 400 500")
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea3")
 	  .append("g")
@@ -215,6 +221,10 @@ $(document).ready(function(){
 	    .attr("transform", "translate(" + transWidth[8] + "," + transHeight[8] + ")");
 
 
+	/*  for timer */
+	var boxAnim;
+	var interval = 1000;
+
 
 
 	var Graph = function() {
@@ -226,6 +236,8 @@ $(document).ready(function(){
 
     	var aboutFlg = "close";
     	var firstFlg = false;
+    	//var mouseoverFlg = false;
+    	var selectObj;
 
 
 	    var grayScale = d3.scale.linear()
@@ -305,13 +317,22 @@ $(document).ready(function(){
 		        .defer(d3.tsv, "assets/data/area4.tsv")
 		        .defer(d3.tsv, "assets/data/genderMale.tsv")
 		        .defer(d3.tsv, "assets/data/genderFemale.tsv")
-		        .defer(d3.tsv, "assets/data/detail.tsv")
+		        .defer(d3.tsv, "assets/data/detail0.tsv")
+		        .defer(d3.tsv, "assets/data/detail1.tsv")
+		        .defer(d3.tsv, "assets/data/detail2.tsv")
+		        .defer(d3.tsv, "assets/data/detail3.tsv")
+		        .defer(d3.tsv, "assets/data/detail4.tsv")
+		        .defer(d3.tsv, "assets/data/detail5.tsv")
+		        .defer(d3.tsv, "assets/data/detail6.tsv")
+		        .defer(d3.tsv, "assets/data/detail7.tsv")
+		        .defer(d3.tsv, "assets/data/detail8.tsv")
 		        .await(loadReady);
 
 
 		    function loadReady(_error, _all, _allopen, _age203040, 
 		    					_age5060, _age70, _area12, _area3, _area4, 
-		    					_genderMale, _genderFemale, _detail)
+		    					_genderMale, _genderFemale,
+		    					_detail0, _detail1, _detail2, _detail3, _detail4, _detail5, _detail6, _detail7, _detail8)
 		    {
 		    	tags[0] = $.extend(true, [], _all);
 		    	tags[1] = $.extend(true, [], _age203040);
@@ -325,8 +346,17 @@ $(document).ready(function(){
 
 		    	allOpenText = $.extend(true, [], _allopen);
 
-		    	detailWords = $.extend(true, [], _detail);
-		    	// console.log(detailWords);
+		    	//detailWords = $.extend(true, [], _detail);
+
+		    	detailWordsArray[0] = $.extend(true, [], _detail0);
+		    	detailWordsArray[1] = $.extend(true, [], _detail1);
+		    	detailWordsArray[2] = $.extend(true, [], _detail2);
+		    	detailWordsArray[3] = $.extend(true, [], _detail3);
+		    	detailWordsArray[4] = $.extend(true, [], _detail4);
+		    	detailWordsArray[5] = $.extend(true, [], _detail5);
+		    	detailWordsArray[6] = $.extend(true, [], _detail6);
+		    	detailWordsArray[7] = $.extend(true, [], _detail7);
+		    	detailWordsArray[8] = $.extend(true, [], _detail8);
 
             	self.e.publish('init:viewport');
 		    }
@@ -388,6 +418,8 @@ $(document).ready(function(){
 	    this.drawWhole = function() {
 
 	    	//console.log("drawWhole");
+
+			$("#submenuBlock").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
 
 	    	var _width = widthArray[0];
 	        vis[0].attr("width", _width).attr("height", height);
@@ -466,6 +498,9 @@ $(document).ready(function(){
 	                .on("mouseover", function (d, i){
 	                	if (firstFlg) {
 					    	d3.select(this).transition().duration(40).style({fill:'#000000'}).style("cursor", "pointer");
+						    selectObj = d3.select(this);
+						    originalSize = d.size;
+						    startMouseAnime();
 	                	}
 	                })
 	                .on("mouseout", function (d, i){
@@ -473,21 +508,18 @@ $(document).ready(function(){
 						    d3.select(this).transition().duration(400).style("fill", function(d){
 								return d3.rgb( d.rgb, d.rgb, d.rgb );
 		                	});
+		                	stopMouseAnime();
 	                	}
 
 	            	})
 	                .on("click", function (d, i){
 	                	if (firstFlg) {
 
-						    //d3.select("#"+ d.text).transition().duration(0).style("fill", function(d){
 						    d3.select("#"+ d.text + vidId + i).transition().duration(0).style("fill", function(d){
 								return d3.rgb( d.rgb, d.rgb, d.rgb );
 		                	})
 
 		                	selectedWord = d.text;
-
-		                	// var _s = d3.select(this.parentNode.parentNode).attr("id");
-		                	// vidId = parseInt( _s.substr(9, 1) );
 
 		                	vidId = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
 		                	//console.log("vidId", vidId);
@@ -522,6 +554,8 @@ $(document).ready(function(){
 
 
 
+
+
 	        var messageText = vis[0].selectAll("#mtext")
 	                .data(["被災者の声に耳を傾けてください。"])
 	                .enter().append("text")
@@ -529,7 +563,7 @@ $(document).ready(function(){
 	                .attr("text-anchor", "middle")
 	                .attr("font-weight", "bold")
 	                .attr("transform", function(d,i) {
-	                    return "translate(" + [0, 0] + ")";
+	                    return "translate(" + [0, -30] + ")";
 	                })
 	                .style("font-size", "30px")
 					.style("font-family", "Yu Gothic")
@@ -539,26 +573,166 @@ $(document).ready(function(){
 	                .style("opacity", 1.0)
 	                .text(function(d) {
 	                    return d;
+	                });
+	         //        .on("mouseover", function (d, i){
+					    	// d3.select(this).transition().duration(1000).style({fill:'#FFFFFF'}).style("cursor", "pointer");
+	         //        })
+	         //        .on("mouseout", function (d, i){
+					    	// d3.select(this).transition().duration(100).style({fill:'#000000'});
+	         //        })
+	                // .on("click", function (d, i){
+
+	                // 		$("#mtext").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'} );
+
+	                // 		$("#dtext0").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 0} );
+	                // 		$("#dtext1").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 500} );
+	                // 		$("#dtext2").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 1000} );
+
+	                // 		$(".alltext").animate( { opacity: 1.0}, { duration: 2000, easing: 'swing'} );
+
+	                // 		d3.selectAll(".alltext").transition().duration(2000).attr("transform", function(d,i) {
+	                //     			return "translate(" + [d.translate0, d.translate1] + ")rotate(" + d.rotate + ")";
+	                // 		});
+
+		               //  	firstFlg = true;
+	                // });
+
+
+	        var descText = vis[0].selectAll("#dtext")
+	                .data(["このサイトは、福島第一原子力発電所の事故で避難している住民へのアンケートを基に制作しました。", "アンケートの自由記述欄で使われた単語を「ワードクラウド」と呼ばれる手法で表現しています。", "単語をクリックすると、単語に紐づいた避難者の思いを読むことができます。"])
+	                .enter().append("text")
+	                .attr("id", function(d,i) {
+	                	return "dtext" + i;
+	                })
+	                .attr("text-anchor", "middle")
+	                .attr("font-weight", "bold")
+	                .attr("transform", function(d,i) {
+	                	var _v = i * 20 + 10;
+	                    return "translate(" + [0 + ", " + _v] + ")";
+	                })
+	                .style("font-size", "14px")
+					.style("font-family", "Yu Gothic")
+	                .style("fill", function(d) {
+	                    return  d3.rgb( 51, 51, 51 );
+	                })
+	                .style("opacity", 1.0)
+	                .text(function(d) {
+	                    return d;
+	                });
+
+
+
+
+	        /*
+				make a start button
+	        */
+	        var _btnw = 160, _btnh = 40;
+
+	        var btnGroup = vis[0].append("svg:g")
+	                .attr("transform", function(d,i) {
+	                	var _x = _btnw / 2 * -1;
+	                	var _y = 80;
+	                    return "translate(" + [_x + ", " + _y] + ")";
+	                });
+
+	        var btnStart = btnGroup.selectAll("#btnstart")
+	                .data([0])
+	                .enter().append("rect")
+	                .attr("id", function(d,i) {
+	                	return "btnstart";
+	                })
+	                .attr("transform", function(d,i) {
+	                    return "translate(" + [0, 0] + ")";
+	                })
+	                .attr({
+	                	width: _btnw,
+	                	height: _btnh,
+	                	fill: "#808080"
 	                })
 	                .on("mouseover", function (d, i){
 					    	d3.select(this).transition().duration(1000).style({fill:'#FFFFFF'}).style("cursor", "pointer");
 	                })
 	                .on("mouseout", function (d, i){
-					    	d3.select(this).transition().duration(100).style({fill:'#000000'});
+					    	d3.select(this).transition().duration(400).style({fill:'#808080'});
 	                })
 	                .on("click", function (d, i){
 
 	                		$("#mtext").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'} );
 
+	                		$("#dtext0").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 0} );
+	                		$("#dtext1").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 1000} );
+	                		$("#dtext2").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 2000} );
+
+	                		$("#btnstart").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 500} );
+	                		$("#btnstarttext").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 500} );
+
 	                		$(".alltext").animate( { opacity: 1.0}, { duration: 2000, easing: 'swing'} );
+
 	                		d3.selectAll(".alltext").transition().duration(2000).attr("transform", function(d,i) {
 	                    			return "translate(" + [d.translate0, d.translate1] + ")rotate(" + d.rotate + ")";
 	                		});
+
 		                	firstFlg = true;
 	                });
 
+	        var btnStartText = btnGroup.selectAll("#btnstarttext")
+	                .data([0])
+	                .enter().append("text")
+	                .attr("id", function(d,i) {
+	                	return "btnstarttext";
+	                })
+	                .attr("transform", function(d,i) {
+	                	var _x = _btnw / 2;
+	                	var _y = _btnh / 2 + _btnh / 8;
+	                    return "translate(" + [_x + ", " + _y] + ")";
+	                })
+	                .attr("pointer-events", "none")
+	                .attr("text-anchor", "middle")
+	                .attr("font-weight", "bold")
+
+	                .style("font-size", "14px")
+					.style("font-family", "Yu Gothic")
+	                .style("fill", function(d) {
+	                    return  d3.rgb( 51, 51, 51 );
+	                })
+	                .style("opacity", 1.0)
+	                .text(function(d) {
+	                    return "開始する";
+	                });
+	    };
+
+
+	    var hoverToggle = false; var originalSize;
+
+	    function startMouseAnime( ) {
+		    clearInterval(boxAnim);
+		    boxAnim = setInterval(boxChange, interval);
 
 	    };
+
+
+	    function stopMouseAnime() {
+		    clearInterval(boxAnim);
+	    };    
+
+
+		function boxChange(){
+		    console.log("startMouseAnime");
+		    console.log("hoverToggle", hoverToggle);
+		    console.log("selectObj", selectObj);
+
+		    // console.log(selectObj);
+
+		    if (hoverToggle) {
+		    	selectObj.transition().duration(interval).style({fill:'#FF0000'});
+		    	hoverToggle = false;
+		    } else {
+		    	selectObj.transition().duration(interval).style({fill:'#FFFFFF'});
+		    	hoverToggle = true;
+		    };
+
+
+		}
 
 
 
@@ -644,6 +818,10 @@ $(document).ready(function(){
 	                	var _v = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
 					    d3.select("#"+ d.text + _v + i).transition().duration(40).style({fill:'#000000'}).style("cursor", "pointer");
 
+					    selectObj = d3.select("#"+ d.text + _v + i);
+					    originalSize = d.size;
+					    startMouseAnime();
+
 	                })
 	                .on("mouseout", function (d, i){
 
@@ -652,6 +830,7 @@ $(document).ready(function(){
 					    d3.select("#"+ d.text + _v + i).transition().duration(400).style("fill", function(d){
 							return grayScale( +d.value );
 	                	})
+	                	stopMouseAnime();
 	            	})
 	                .on("click", function (d, i){
 
@@ -751,17 +930,31 @@ $(document).ready(function(){
 
 
 	    this.showDetail = function() {
-	    	console.log("selectedWord", selectedWord);
 
-	    	for (var i=0; i<detailWords.length; i++) {
-	    		if (detailWords[i]["keyword"] == selectedWord) {
-	    			var _age 		= detailWords[i]["age"];
-	    			var _sex 		= detailWords[i]["sex"];
-	    			var _area 		= parseInt( detailWords[i]["area"] );
-	    			var _keyword	= detailWords[i]["keyword"];	
-	    			var _expression = detailWords[i]["expression"];	    				    			
+	    	console.log("selectedWord", selectedWord);
+	    	console.log("vidId", vidId);
+
+
+
+	    	for (var i=0; i<detailWordsArray[vidId].length; i++) {
+	    		if (detailWordsArray[vidId][i]["keyword"] == selectedWord) {
+	    			var _age 		= detailWordsArray[vidId][i]["age"];
+	    			var _sex 		= detailWordsArray[vidId][i]["sex"];
+	    			var _area 		= parseInt( detailWordsArray[vidId][i]["area"] );
+	    			var _keyword	= detailWordsArray[vidId][i]["keyword"];	
+	    			var _expression = detailWordsArray[vidId][i]["expression"];	    				    			
 	    		}
 	    	};
+
+	    	// for (var i=0; i<detailWords.length; i++) {
+	    	// 	if (detailWords[i]["keyword"] == selectedWord) {
+	    	// 		var _age 		= detailWords[i]["age"];
+	    	// 		var _sex 		= detailWords[i]["sex"];
+	    	// 		var _area 		= parseInt( detailWords[i]["area"] );
+	    	// 		var _keyword	= detailWords[i]["keyword"];	
+	    	// 		var _expression = detailWords[i]["expression"];	    				    			
+	    	// 	}
+	    	// };
 
 	    	var _areatext;
 
@@ -782,6 +975,9 @@ $(document).ready(function(){
 				case 4:
 				  _areatext = "避難指示解除準備区域";
 				  break;
+				default:
+				  _areatext = "";
+				  break;
 			}
 
 			if (_age != "") {
@@ -799,6 +995,9 @@ $(document).ready(function(){
 		    new ZMODAL(options);
 
 	    };
+
+
+
 
 
 
@@ -965,7 +1164,7 @@ $(document).ready(function(){
 
 
 
-	var container = $("#svgContainerContainer");
+
 
 	function resizeSVG() {
 
