@@ -934,65 +934,122 @@ $(document).ready(function(){
 	    	console.log("selectedWord", selectedWord);
 	    	console.log("vidId", vidId);
 
+	    	if (currentNum == 10){
+
+	    		//var voiceArray = new Array();
+	    		var wholeVoice = "";
 
 
-	    	for (var i=0; i<detailWordsArray[vidId].length; i++) {
-	    		if (detailWordsArray[vidId][i]["keyword"] == selectedWord) {
-	    			var _age 		= detailWordsArray[vidId][i]["age"];
-	    			var _sex 		= detailWordsArray[vidId][i]["sex"];
-	    			var _area 		= parseInt( detailWordsArray[vidId][i]["area"] );
-	    			var _keyword	= detailWordsArray[vidId][i]["keyword"];	
-	    			var _expression = detailWordsArray[vidId][i]["expression"];	    				    			
-	    		}
-	    	};
+	    		for (var j=1; j<9; j++) {
 
-	    	// for (var i=0; i<detailWords.length; i++) {
-	    	// 	if (detailWords[i]["keyword"] == selectedWord) {
-	    	// 		var _age 		= detailWords[i]["age"];
-	    	// 		var _sex 		= detailWords[i]["sex"];
-	    	// 		var _area 		= parseInt( detailWords[i]["area"] );
-	    	// 		var _keyword	= detailWords[i]["keyword"];	
-	    	// 		var _expression = detailWords[i]["expression"];	    				    			
-	    	// 	}
-	    	// };
+			    		for (var i=0; i<detailWordsArray[j].length; i++) {
+				    		if (detailWordsArray[j][i]["keyword"] == selectedWord) {
+				    			var _age 		= detailWordsArray[j][i]["age"];
+				    			var _sex 		= detailWordsArray[j][i]["sex"];
+				    			var _area 		= parseInt( detailWordsArray[j][i]["area"] );
+				    			var _keyword	= detailWordsArray[j][i]["keyword"];	
+				    			var _expression = detailWordsArray[j][i]["expression"];	    				    			
+				    		}
+				    	};
 
-	    	var _areatext;
+				    	var _areatext;
+
+						switch (_area) {
+							case 0:
+							  _areatext = "";
+							  break;
+							case 1:
+							  _areatext = "帰還困難区域";
+							  break;
+							case 2:
+							  _areatext = "帰還困難区域";
+							  break;
+							case 3:
+							  _areatext = "居住制限区域";
+							  break;
+							case 4:
+							  _areatext = "避難指示解除準備区域";
+							  break;
+							default:
+							  _areatext = "";
+							  break;
+						}
+
+						if (_age != "") {
+							_age += '歳 ';
+						}
+
+						wholeVoice = wholeVoice + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>' + '<div class="attr area">' + _expression + '</div>';
+						// console.log(voiceArray[i]);
+				}
+
+				console.log(wholeVoice);
+	    		// for (var i=1; i<9; i++) {
+	    		// 	wholeVoice = wholeVoice + voiceArray[i];
+	    		// }
+
+			    var options = {
+			        title : '避難者の声',
+			        content : wholeVoice,
+			        buttons : [{
+			            label: '閉じる'
+			        }]
+			    };
+
+			    new ZMODAL(options);
 
 
-			switch (_area) {
-				case 0:
-				  _areatext = "";
-				  break;
-				case 1:
-				  _areatext = "帰還困難区域";
-				  break;
-				case 2:
-				  _areatext = "帰還困難区域";
-				  break;
-				case 3:
-				  _areatext = "居住制限区域";
-				  break;
-				case 4:
-				  _areatext = "避難指示解除準備区域";
-				  break;
-				default:
-				  _areatext = "";
-				  break;
-			}
+	    	} else {
 
-			if (_age != "") {
-				_age += '歳 ';
-			}
+	    		for (var i=0; i<detailWordsArray[vidId].length; i++) {
+		    		if (detailWordsArray[vidId][i]["keyword"] == selectedWord) {
+		    			var _age 		= detailWordsArray[vidId][i]["age"];
+		    			var _sex 		= detailWordsArray[vidId][i]["sex"];
+		    			var _area 		= parseInt( detailWordsArray[vidId][i]["area"] );
+		    			var _keyword	= detailWordsArray[vidId][i]["keyword"];	
+		    			var _expression = detailWordsArray[vidId][i]["expression"];	    				    			
+		    		}
+		    	};
 
-		    var options = {
-		        title : '避難者の声' + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>',
-		        content : '<div class="attr area">' + _expression + '</div>',
-		        buttons : [{
-		            label: '閉じる'
-		        }]
-		    };
+		    	var _areatext;
 
-		    new ZMODAL(options);
+				switch (_area) {
+					case 0:
+					  _areatext = "";
+					  break;
+					case 1:
+					  _areatext = "帰還困難区域";
+					  break;
+					case 2:
+					  _areatext = "帰還困難区域";
+					  break;
+					case 3:
+					  _areatext = "居住制限区域";
+					  break;
+					case 4:
+					  _areatext = "避難指示解除準備区域";
+					  break;
+					default:
+					  _areatext = "";
+					  break;
+				}
+
+				if (_age != "") {
+					_age += '歳 ';
+				}
+
+			    var options = {
+			        title : '避難者の声' + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>',
+			        content : '<div class="attr area">' + _expression + '</div>',
+			        buttons : [{
+			            label: '閉じる'
+			        }]
+			    };
+
+			    new ZMODAL(options);
+
+	    	}
+
 
 	    };
 
