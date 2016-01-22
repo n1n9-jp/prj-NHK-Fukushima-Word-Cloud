@@ -735,6 +735,9 @@ a:hover img {
   -khtml-opacity: 0.6;
   filter: alpha(opacity=60); }
 
+.alltext, .onetext, #mtext, #dtext0, #dtext1, #dtext2, #btnstarttext {
+  font-family: "游ゴシック体", "Yu Gothic", YuGothic, sans-serif; }
+
 /* ------------------------------
 LAYOUT
 ------------------------------ */
@@ -819,19 +822,11 @@ D3.js
   z-index: 0;
   display: block; }
 
-#description {
-  z-index: 20; }
-
 #container0, #container1, #container2, #container3 {
   z-index: 10; }
 
 #container1, #container2, #container3 {
   display: none; }
-
-#description {
-  display: none;
-  background-color: #333;
-  color: #FFF; }
 
 .container {
   /*
@@ -844,12 +839,6 @@ D3.js
   box-shadow: rgba(90, 90, 90, 0.6) 0px 0px 50px 3px inset;
   -webkit-box-shadow: rgba(90, 90, 90, 0.6) 0px 0px 50px 3px inset;
   -moz-box-shadow: rgba(90, 90, 90, 0.6) 0px 0px 50px 3px inset; }
-
-.containerDetail {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  padding: 2rem 4rem 4rem 4rem; }
 
 #svgcontainer1, #svgcontainer2, #svgcontainer3, #svgcontainer4, #svgcontainer5, #svgcontainer6 {
   float: left; }
@@ -894,7 +883,8 @@ button
 .submenu .nav {
   padding: 0.6rem 1rem 0 1rem;
   text-align: center;
-  height: 60px; }
+  height: 60px;
+  line-height: 1rem; }
 
 .submenu .nav img {
   margin-right: 0.2rem;
@@ -991,11 +981,12 @@ z-model
   background: #666 !important; }
 
 .z-modal .z-modal-box {
-  background-color: rgba(255, 255, 255, 0.6) !important;
+  background-color: rgba(255, 255, 255, 0.8) !important;
   box-shadow: 0 0 0px transparent !important; }
 
 .attr.age {
-  font-weight: bold; }
+  font-weight: bold;
+  margin-top: 1rem; }
 
 /* SMALL MOBILE DEVICES - 241px to 480px */
 @media only screen and (min-width: 241px) and (max-width: 480px) {
@@ -1011,6 +1002,9 @@ z-model
     font-size: 0.8rem;
     line-height: 1.0rem; }
 
+  p.top {
+    margin-bottom: 1em; }
+
   .submenu .nav {
     font-size: 0.4rem;
     line-height: 1.0rem; } }
@@ -1024,6 +1018,9 @@ z-model
   Stylesheet: Resolution between 481px to 767px for LARGER MOBILE DEVICES.
   
   ******************************************************************/
+  p.top {
+    margin-bottom: 1em; }
+
   .submenu .nav {
     font-size: 0.8rem; } }
 /* TABLET & SMALLER LAPTOPS - 768px to 1029px */

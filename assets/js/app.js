@@ -1,6 +1,8 @@
 $(document).ready(function(){
 
 
+
+
 	/* ---------------
 	Eventer function
 	--------------- */
@@ -71,6 +73,7 @@ $(document).ready(function(){
     var selectedWord="";
     var detailWords, allOpenText;
     var detailWordsArray = new Array();
+    var mobileBool = false;
 
 	/* ---------------
 	Viewport
@@ -181,7 +184,7 @@ $(document).ready(function(){
 	vis[5] = d3.select("#svgcontainer5").append("svg")
 	    .attr("width", widthArray[5])
 	    .attr("height", height)
-	    .attr("transform", "translate(" + widthArray[5] + "," + height/2 + ")")
+	    // .attr("transform", "translate(" + widthArray[5] + "," + height/2 + ")")
 	    .attr("viewBox", "0 0 400 500")
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea5")
@@ -191,7 +194,7 @@ $(document).ready(function(){
 	vis[6] = d3.select("#svgcontainer6").append("svg")
 	    .attr("width", widthArray[6])
 	    .attr("height", height)
-	    .attr("transform", "translate(" + widthArray[6]*2 + "," + height/2 + ")")
+	    // .attr("transform", "translate(" + widthArray[6]*2 + "," + height/2 + ")")
 	    .attr("viewBox", "0 0 400 500")
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea6")
@@ -213,7 +216,7 @@ $(document).ready(function(){
 	vis[8] = d3.select("#svgcontainer8").append("svg")
 	    .attr("width", widthArray[8])
 	    .attr("height", height)
-	    .attr("transform", "translate(" + widthArray[8] + "," + height/2 + ")")
+	    // .attr("transform", "translate(" + widthArray[8] + "," + height/2 + ")")
 	    .attr("viewBox", "0 0 600 500")
 	    .attr("preserveAspectRatio", "xMidYMid")
 	    .attr("id", "chartArea8")
@@ -263,28 +266,51 @@ $(document).ready(function(){
 	    this.aboutLink = function() {
 
 		    $("#aboutLink").click(function(){
-		                                    
+		                     
+		        console.log("aboutFlg", aboutFlg);
+
 		        if(aboutFlg == "close"){ //open about
 
-						$("#description").animate( { opacity: 'show'}, { duration: 600, easing: 'swing'} );
-						$("#container" + currentNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
-						$("#radioBlock").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
-						$("#submenuBlock").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+					    var options = {
+					        title : 'このサイトについて',
+					        content : '<ul><li>' + 'アンケートは、ＮＨＫ福島放送局が２０１４年１１月～１２月にかけて、原発から半径１０キロ圏内にある大熊町、双葉町、浪江町、富岡町の４つの町から県の内外に避難している住民５０００人を対象に行い、１１５４人から回答を得ました。' + '</li><li>' + 'ワードクラウドとは、文章中で出現頻度が高い単語を複数選びだし、出現頻度に応じた大きさで図示する表現手法です。単語の抽出は、以下の形態素解析エンジンと辞書を利用し、名詞のみを抽出して集計しました。出現頻度が１０回以上の単語を掲載しています。' + '</li><ul><li>' + '利用した形態素解析エンジン：MeCab (version: 0.996)' + '</li><li>' + '利用した辞書：mecab-ipadic-neologd (version: 102)' + '</li></ul><li>' + '自由記述欄はアンケートの末尾に設けられ、将来の住まいや町の姿に関する要望や意見を伺いました。できるかぎり原文に忠実に掲載していますが、一部には、読みやすいように句読点を付け加えています。また、ワードクラウドを制作するにあたって、単語表記はＮＨＫの基準に合わせました。（例）「子供」→「子ども」' + '</li></ul><p>' + '制作）山本 智　管野 彰彦　片山 大輔　矢崎 裕一（visualizing.jp）' + '</p>',
+					        buttons : [{
+					            label: '閉じる'
+					        }]
+					    };
 
-						$("#abouLinkText").text("閉じる");
+					    new ZMODAL(options);
+
+					    d3.select('.z-modal-box').style("top", "50%");
+
+						//description 
+						// var _ww = $("#description").width();
+						// if (_ww<481) {
+						// 	//$("#description").height(1000);
+						// 	mobileBool = true;
+						// } else {
+						// 	mobileBool = false;
+						// }
+								
+						// $("#description").animate( { opacity: 'show'}, { duration: 600, easing: 'swing'} );
+						// $("#container" + currentNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+						// $("#radioBlock").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+						// $("#submenuBlock").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+
+						$("#aboutLink").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
 						aboutFlg = "open";
+					//}
+		    //     } else  if(aboutFlg == "open"){ //close about
+						// // $("#description").animate( { opacity: 'hide'}, { duration: 100, easing: 'swing'} );
+						// // $("#container" + currentNum).animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+						// // $("#radioBlock").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+						// // $("#submenuBlock").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
 
-		        } else  if(aboutFlg == "open"){ //close about
-						$("#description").animate( { opacity: 'hide'}, { duration: 100, easing: 'swing'} );
-						$("#container" + currentNum).animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
-						$("#radioBlock").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
-						$("#submenuBlock").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+						// $("#aboutLink").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
 
-						$("#abouLinkText").text("このサイトについて");
-
-						resizeSVG();
-						aboutFlg = "close";
-		        };
+						// // resizeSVG();
+						// aboutFlg = "close";
+		         };
 		    });
 
 
@@ -484,7 +510,7 @@ $(document).ready(function(){
 	                .style("font-size", function(d) {
 	                    return d.size + "px";
 	                })
-					.style("font-family", "Yu Gothic")
+					// .style("font-family", "Yu Gothic")
 	                .style("fill", function(d) {
 	                    return  d3.rgb( d.rgb, d.rgb, d.rgb );
 	                })
@@ -536,6 +562,8 @@ $(document).ready(function(){
 		                	d3.select(this.parentNode).selectAll("text").transition().duration(500).style("opacity", .0);
 		                	d3.select(this).transition().duration(50).style("opacity", 1.0);
 
+
+
 		                    self.e.publish('show:detail');
 	                	}
 	                });
@@ -557,7 +585,7 @@ $(document).ready(function(){
 
 
 	        var messageText = vis[0].selectAll("#mtext")
-	                .data(["被災者の声に耳を傾けてください。"])
+	                .data(["避難者が今、最も気にかけている言葉は何だろう？"])
 	                .enter().append("text")
 	                .attr("id", "mtext")
 	                .attr("text-anchor", "middle")
@@ -566,7 +594,7 @@ $(document).ready(function(){
 	                    return "translate(" + [0, -30] + ")";
 	                })
 	                .style("font-size", "30px")
-					.style("font-family", "Yu Gothic")
+					// .style("font-family", "Yu Gothic")
 	                .style("fill", function(d) {
 	                    return  d3.rgb( 0, 0, 0 );
 	                })
@@ -574,32 +602,11 @@ $(document).ready(function(){
 	                .text(function(d) {
 	                    return d;
 	                });
-	         //        .on("mouseover", function (d, i){
-					    	// d3.select(this).transition().duration(1000).style({fill:'#FFFFFF'}).style("cursor", "pointer");
-	         //        })
-	         //        .on("mouseout", function (d, i){
-					    	// d3.select(this).transition().duration(100).style({fill:'#000000'});
-	         //        })
-	                // .on("click", function (d, i){
 
-	                // 		$("#mtext").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'} );
-
-	                // 		$("#dtext0").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 0} );
-	                // 		$("#dtext1").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 500} );
-	                // 		$("#dtext2").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 1000} );
-
-	                // 		$(".alltext").animate( { opacity: 1.0}, { duration: 2000, easing: 'swing'} );
-
-	                // 		d3.selectAll(".alltext").transition().duration(2000).attr("transform", function(d,i) {
-	                //     			return "translate(" + [d.translate0, d.translate1] + ")rotate(" + d.rotate + ")";
-	                // 		});
-
-		               //  	firstFlg = true;
-	                // });
 
 
 	        var descText = vis[0].selectAll("#dtext")
-	                .data(["このサイトは、福島第一原子力発電所の事故で避難している住民へのアンケートを基に制作しました。", "アンケートの自由記述欄で使われた単語を「ワードクラウド」と呼ばれる手法で表現しています。", "単語をクリックすると、単語に紐づいた避難者の思いを読むことができます。"])
+	                .data(["「生活」「町」「家」「原発」。去年、１０００人以上の避難者に行ったアンケートの自由記述欄で使われていた言葉です。","そこには、長引く避難生活の不満や将来への不安など、避難者の生の声が刻まれていました。","自由記述欄で使われた頻度の高い単語を選び出し、「ワードクラウド」と呼ばれる手法で表現しました。","単語のサイズが大きいほど、使用頻度が高いことを示しています。単語をクリックすると、単語に紐づいた避難者の思いを読むことができます。"])
 	                .enter().append("text")
 	                .attr("id", function(d,i) {
 	                	return "dtext" + i;
@@ -611,7 +618,7 @@ $(document).ready(function(){
 	                    return "translate(" + [0 + ", " + _v] + ")";
 	                })
 	                .style("font-size", "14px")
-					.style("font-family", "Yu Gothic")
+					// .style("font-family", "Yu Gothic")
 	                .style("fill", function(d) {
 	                    return  d3.rgb( 51, 51, 51 );
 	                })
@@ -631,7 +638,7 @@ $(document).ready(function(){
 	        var btnGroup = vis[0].append("svg:g")
 	                .attr("transform", function(d,i) {
 	                	var _x = _btnw / 2 * -1;
-	                	var _y = 80;
+	                	var _y = 100;
 	                    return "translate(" + [_x + ", " + _y] + ")";
 	                });
 
@@ -647,13 +654,15 @@ $(document).ready(function(){
 	                .attr({
 	                	width: _btnw,
 	                	height: _btnh,
-	                	fill: "#808080"
+	                	fill: "#333333"
 	                })
 	                .on("mouseover", function (d, i){
 					    	d3.select(this).transition().duration(1000).style({fill:'#FFFFFF'}).style("cursor", "pointer");
+					    	btnStartText.transition().duration(1000).style({fill:'#000'});
 	                })
 	                .on("mouseout", function (d, i){
-					    	d3.select(this).transition().duration(400).style({fill:'#808080'});
+					    	d3.select(this).transition().duration(400).style({fill:'#333333'});
+					    	btnStartText.transition().duration(1000).style({fill:'#FFF'});
 	                })
 	                .on("click", function (d, i){
 
@@ -662,6 +671,7 @@ $(document).ready(function(){
 	                		$("#dtext0").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 0} );
 	                		$("#dtext1").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 1000} );
 	                		$("#dtext2").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 2000} );
+	                		$("#dtext3").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 3000} );
 
 	                		$("#btnstart").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 500} );
 	                		$("#btnstarttext").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 500} );
@@ -689,12 +699,9 @@ $(document).ready(function(){
 	                .attr("pointer-events", "none")
 	                .attr("text-anchor", "middle")
 	                .attr("font-weight", "bold")
-
 	                .style("font-size", "14px")
-					.style("font-family", "Yu Gothic")
-	                .style("fill", function(d) {
-	                    return  d3.rgb( 51, 51, 51 );
-	                })
+					// .style("font-family", "Yu Gothic")
+	                .style("fill", "#FFF")
 	                .style("opacity", 1.0)
 	                .text(function(d) {
 	                    return "開始する";
@@ -795,16 +802,17 @@ $(document).ready(function(){
 	                .transition()
 	                .duration(1000);
 
-	        text.style("font-family", function(d) {
-	                    return d.font;
-	                })
-	                .style("fill", function(d,i) {
+	        // text.style("font-family", function(d) {
+	        //             return d.font;
+	        //         })
+	            text.style("fill", function(d,i) {
 	                    return grayScale( +d.value );
 	                })
 	                .style("opacity", 1.0)
 					.style("text-shadow", function(d){
 						return "1px 1px 0 #999";
 					})
+	                .attr("class", "onetext")
 	                .attr("id", function(d,i){
 	                	//console.log(d.text + vid + i);
 	                	return d.text + vid + i;
@@ -934,7 +942,10 @@ $(document).ready(function(){
 	    	console.log("selectedWord", selectedWord);
 	    	console.log("vidId", vidId);
 
-	    	if (currentNum == 10){
+	    	if (currentNum == 0){
+
+
+
 
 	    		//var voiceArray = new Array();
 	    		var wholeVoice = "";
@@ -942,51 +953,59 @@ $(document).ready(function(){
 
 	    		for (var j=1; j<9; j++) {
 
+	    				var _age="", _sex="", _area="", _keyword="", _expression="";
+
 			    		for (var i=0; i<detailWordsArray[j].length; i++) {
 				    		if (detailWordsArray[j][i]["keyword"] == selectedWord) {
-				    			var _age 		= detailWordsArray[j][i]["age"];
-				    			var _sex 		= detailWordsArray[j][i]["sex"];
-				    			var _area 		= parseInt( detailWordsArray[j][i]["area"] );
-				    			var _keyword	= detailWordsArray[j][i]["keyword"];	
-				    			var _expression = detailWordsArray[j][i]["expression"];	    				    			
+				    			_age 		= detailWordsArray[j][i]["age"];
+				    			_sex 		= detailWordsArray[j][i]["sex"];
+				    			_area 		= parseInt( detailWordsArray[j][i]["area"] );
+				    			_keyword	= detailWordsArray[j][i]["keyword"];	
+				    			_expression = detailWordsArray[j][i]["expression"];	    				    			
 				    		}
 				    	};
 
-				    	var _areatext;
+				    	if (!_age=="") {
 
-						switch (_area) {
-							case 0:
-							  _areatext = "";
-							  break;
-							case 1:
-							  _areatext = "帰還困難区域";
-							  break;
-							case 2:
-							  _areatext = "帰還困難区域";
-							  break;
-							case 3:
-							  _areatext = "居住制限区域";
-							  break;
-							case 4:
-							  _areatext = "避難指示解除準備区域";
-							  break;
-							default:
-							  _areatext = "";
-							  break;
-						}
+						    	var _areatext;
 
-						if (_age != "") {
-							_age += '歳 ';
-						}
+								switch (_area) {
+									case 0:
+									  _areatext = "";
+									  break;
+									case 1:
+									  _areatext = "帰還困難区域";
+									  break;
+									case 2:
+									  _areatext = "帰還困難区域";
+									  break;
+									case 3:
+									  _areatext = "居住制限区域";
+									  break;
+									case 4:
+									  _areatext = "避難指示解除準備区域";
+									  break;
+									default:
+									  _areatext = "";
+									  break;
+								}
 
-						wholeVoice = wholeVoice + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>' + '<div class="attr area">' + _expression + '</div>';
+								if (_age != "") {
+									_age += '歳 ';
+								}
+
+								wholeVoice = wholeVoice + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>' + '<div class="attr area">' + _expression + '</div>';
+
+				    	}
+
+
 						// console.log(voiceArray[i]);
 				}
 
-				console.log(wholeVoice);
-	    		// for (var i=1; i<9; i++) {
-	    		// 	wholeVoice = wholeVoice + voiceArray[i];
-	    		// }
+				// console.log(wholeVoice);
+	   //  		for (var i=1; i<9; i++) {
+	   //  			wholeVoice = wholeVoice + voiceArray[i];
+	   //  		}
 
 			    var options = {
 			        title : '避難者の声',
@@ -996,8 +1015,12 @@ $(document).ready(function(){
 			        }]
 			    };
 
+			    // d3.select(".z-modal").style({"overflow": "scroll"});
+			    // d3.select(".z-modal-box").style({"overflow": "scroll"});
+			    //$(".z-modal-box").
 			    new ZMODAL(options);
 
+				d3.select('.z-modal-box').style("top", "50%");
 
 	    	} else {
 
@@ -1046,12 +1069,16 @@ $(document).ready(function(){
 			        }]
 			    };
 
+			    //d3.select(".z-modal").style({"overflow": "hidden"});
+			    // d3.select(".z-modal-box").style({"overflow": "hidden"});
 			    new ZMODAL(options);
 
+				d3.select('.z-modal-box').style("top", "60%");
 	    	}
 
 
 	    };
+
 
 
 
@@ -1124,68 +1151,82 @@ $(document).ready(function(){
 
 		this.opacityFull = function() {
 
-			/*
-			area appear
-			*/
-			switch (vidId) {
-				case 0:
-				  break;
+			console.log("aboutFlg",aboutFlg);
+
+			if (aboutFlg == "open") {
+
+					$("#aboutLink").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
+					aboutFlg = "close";
+
+			} else if (aboutFlg == "close") {
+					console.log("else else");
+					/*
+					area appear
+					*/
+					switch (vidId) {
+						case 0:
+						  break;
 
 
-				case 1:
-					console.log("1");
-					d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
-					d3.select("#chartArea3").transition().duration(100).style("opacity", 1.0);
-				  break;
-				case 2:
-					console.log("2");
-					d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
-					d3.select("#chartArea3").transition().duration(100).style("opacity", 1.0);
-				  break;
-				case 3:
-					console.log("3");
-					d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
-					d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
-				  break;
+						case 1:
+							console.log("1");
+							d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
+							d3.select("#chartArea3").transition().duration(100).style("opacity", 1.0);
+						  break;
+						case 2:
+							console.log("2");
+							d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
+							d3.select("#chartArea3").transition().duration(100).style("opacity", 1.0);
+						  break;
+						case 3:
+							console.log("3");
+							d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
+							d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
+						  break;
 
 
-				case 4:
-					console.log("4");
-					d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
-					d3.select("#chartArea6").transition().duration(100).style("opacity", 1.0);
-				  break;
-				case 5:
-					console.log("5");
-					d3.select("#chartArea4").transition().duration(100).style("opacity", 1.0);
-					d3.select("#chartArea6").transition().duration(100).style("opacity", 1.0);
-				  break;
-				case 6:
-					console.log("6");
-					d3.select("#chartArea4").transition().duration(100).style("opacity", 1.0);
-					d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
-				  break;
+						case 4:
+							console.log("4");
+							d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
+							d3.select("#chartArea6").transition().duration(100).style("opacity", 1.0);
+						  break;
+						case 5:
+							console.log("5");
+							d3.select("#chartArea4").transition().duration(100).style("opacity", 1.0);
+							d3.select("#chartArea6").transition().duration(100).style("opacity", 1.0);
+						  break;
+						case 6:
+							console.log("6");
+							d3.select("#chartArea4").transition().duration(100).style("opacity", 1.0);
+							d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
+						  break;
 
 
-				case 7:
-					console.log("7");
-					d3.select("#chartArea8").transition().duration(100).style("opacity", 1.0);
-				  break;
-				case 8:
-					console.log("8");
-					d3.select("#chartArea7").transition().duration(100).style("opacity", 1.0);
-				  break;
+						case 7:
+							console.log("7");
+							d3.select("#chartArea8").transition().duration(100).style("opacity", 1.0);
+						  break;
+						case 8:
+							console.log("8");
+							d3.select("#chartArea7").transition().duration(100).style("opacity", 1.0);
+						  break;
+					}
+
+
+					/*
+					letter appear
+					*/
+					vis[vidId].selectAll("text").transition().duration(1000).style("opacity", 1.0);
+			                	
+		        	vis[vidId].transition().duration(1000).delay(0).attr("transform", function(d) {
+		            	// return "translate(" + transWidth[currentNum] + "," + transHeight[currentNum] + ")";
+		            	return "translate(" + transWidth[vidId] + "," + transHeight[vidId] + ")";
+		        	});
+
+
 			}
 
 
-			/*
-			letter appear
-			*/
-			vis[vidId].selectAll("text").transition().duration(1000).style("opacity", 1.0);
-	                	
-        	vis[vidId].transition().duration(1000).delay(0).attr("transform", function(d) {
-            	// return "translate(" + transWidth[currentNum] + "," + transHeight[currentNum] + ")";
-            	return "translate(" + transWidth[vidId] + "," + transHeight[vidId] + ")";
-        	});
 
 		}
 
@@ -1279,7 +1320,21 @@ $(document).ready(function(){
 
 	$(window).on("resize", function() {
 
-		resizeSVG();
+		if (!mobileBool) {
+			resizeSVG();
+		}
+
+
+		// if (container.width()<481) {
+		// 	mobileBool = true;
+		// } else {
+		// 	mobileBool = false;
+		// 	resizeSVG();
+		// }
+
+
+
+
 
 	}).trigger("resize");
 
