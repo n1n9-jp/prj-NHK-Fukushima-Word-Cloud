@@ -689,9 +689,6 @@ MEDIA QUERIES for width resolution.
 /* BASE (PC) SIZE */
 /******************************************************************
 
-Site Name:
-Author:
-
 Stylesheet: Resolution over 1240px for DESKTOP.
 Also for default styles for every devices.
 
@@ -768,7 +765,7 @@ STYLE
 ------------------------------ */
 h1.top {
   color: #000000;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   margin-top: 0.3em;
   margin-bottom: 0.1em;
   text-align: center; }
@@ -786,30 +783,10 @@ ul li {
   margin-bottom: 1rem;
   list-style-type: disc; }
 
-/*
-ul.filter {
-	float: right;
-}
-
-ul.filter li {
-	float: left;
-	margin-right: 1.6rem;
-	width: 14rem;
-	height: 3rem;
-	border-bottom: 3px #000 solid;
-}
-*/
 .about {
   padding-top: 0rem;
   text-align: center;
   font-size: 0.8rem; }
-
-#abouLinkTextClose {
-  /*
-  width: 100%;
-  padding: 1rem 0 1rem 0;
-  background-color: #000;
-  */ }
 
 /* ------------------------------
 D3.js
@@ -829,39 +806,15 @@ D3.js
   display: none; }
 
 .container {
-  /*
-  	position: absolute;
-  	left: 0px;
-  	top: 0px;
-  */
   background-color: #999;
   float: left;
-  box-shadow: rgba(90, 90, 90, 0.6) 0px 0px 50px 3px inset;
-  -webkit-box-shadow: rgba(90, 90, 90, 0.6) 0px 0px 50px 3px inset;
-  -moz-box-shadow: rgba(90, 90, 90, 0.6) 0px 0px 50px 3px inset; }
+  box-shadow: rgba(60, 60, 60, 0.6) 0px 0px 50px 3px inset;
+  -webkit-box-shadow: rgba(60, 60, 60, 0.6) 0px 0px 50px 3px inset;
+  -moz-box-shadow: rgba(60, 60, 60, 0.6) 0px 0px 50px 3px inset; }
 
 #svgcontainer1, #svgcontainer2, #svgcontainer3, #svgcontainer4, #svgcontainer5, #svgcontainer6 {
   float: left; }
 
-/*
-#svgcontainer7, #svgcontainer8 {
-	//width: 600px;
-	//height: 500px;
-}
-
-#svgcontainer2, #svgcontainer5 {
-	//margin-left: 400px;
-	//float: left;
-}
-
-#svgcontainer3, #svgcontainer6 {
-	//margin-left: 800px;
-}
-
-#svgcontainer8 {
-	//margin-left: 600px;
-}
-*/
 .selected {
   color: #FF0000;
   font-weight: bold; }
@@ -894,11 +847,6 @@ button
   float: right;
   width: 100%; }
 
-/*
-.nav {
-	display: none;	
-}
-*/
 input[type=radio] {
   display: none; }
 
@@ -919,7 +867,7 @@ input[type=radio] + label {
   background-repeat: repeat-x;
   background-color: #808080;
   border-top-color: #b3b3b3;
-  border-top: 4px #666 solid; }
+  border-top: 4px #808080 solid; }
 
 input[type=radio] + label:hover {
   color: #000000;
@@ -934,7 +882,8 @@ input[type=radio]:checked + label {
   background-color: #FFFFFF;
   color: #888;
   border-top-color: #b3b3b3;
-  border-top: 4px #666 solid; }
+  border-top: 4px #808080 solid;
+  cursor: default; }
 
 /* ------------------------------
 footer
@@ -992,9 +941,6 @@ z-model
 @media only screen and (min-width: 241px) and (max-width: 480px) {
   /******************************************************************
   
-  Site Name:
-  Author:
-  
   Stylesheet: Resolution between 241px to 480px for SMALL MOBILE DEVICES.
   
   ******************************************************************/
@@ -1005,15 +951,23 @@ z-model
   p.top {
     margin-bottom: 1em; }
 
-  .submenu .nav {
+  .submenu .nav img {
+    margin-right: 0.2rem;
+    vertical-align: middle;
+    float: left; }
+
+  .submenu .nav span {
     font-size: 0.4rem;
-    line-height: 1.0rem; } }
+    line-height: 1.0rem;
+    display: block; }
+
+  p.nhklogo {
+    float: left;
+    margin: 0rem 2rem 0.4rem 0;
+    width: 100%; } }
 /* LARGER MOBILE DEVICES - 481px to 767px */
 @media only screen and (min-width: 481px) and (max-width: 767px) {
   /******************************************************************
-  
-  Site Name:
-  Author:
   
   Stylesheet: Resolution between 481px to 767px for LARGER MOBILE DEVICES.
   
@@ -1021,14 +975,18 @@ z-model
   p.top {
     margin-bottom: 1em; }
 
-  .submenu .nav {
-    font-size: 0.8rem; } }
+  .submenu .nav img {
+    margin-right: 0.2rem;
+    vertical-align: middle;
+    float: left; }
+
+  .submenu .nav span {
+    font-size: 0.4rem;
+    line-height: 1.0rem;
+    display: block; } }
 /* TABLET & SMALLER LAPTOPS - 768px to 1029px */
 @media only screen and (min-width: 768px) and (max-width: 1029px) {
   /******************************************************************
-  
-  Site Name:
-  Author:
   
   Stylesheet: Resolution between 768px to 1029px for TABLET & SMALLER LAPTOPS.
   
@@ -1036,9 +994,6 @@ z-model
 /* TABLET LANDSCAPE & DESKTOP - 1030px to 1239px */
 @media only screen and (min-width: 1030px) and (max-width: 1239px) {
   /******************************************************************
-  
-  Site Name:
-  Author:
   
   Stylesheet: Resolution between 1030px to 1239px for TABLET LANDSCAPE & DESKTOP.
   
@@ -1048,20 +1003,10 @@ MEDIA QUERIES for RETINA (2x RESOLUTION DEVICES).
 ------------------------------ */
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
   /******************************************************************
-  Site Name: 
-  Author: 
   
   Stylesheet: Retina Screens & Devices Stylesheet
   
   ******************************************************************/
-  /* for example 
-  
-  .icon {
-  	background: url(img/test@2x.png) no-repeat;
-  	background-size: 24px 24px;
-  }
-  
-  */
   /* ------------------------------
   MEDIA QUERIES for PRINT STYLESHEET
   ------------------------------ */ }

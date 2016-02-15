@@ -1,0 +1,39 @@
+/******************************************************************
+
+Stylesheet: IE
+
+******************************************************************/
+
+
+
+
+#svgcontainer0 {
+	width: 100%;
+}
+
+
+#svgcontainer1, #svgcontainer2, #svgcontainer3 {
+	width: 32% !important;
+}
+
+
+#svgcontainer4, #svgcontainer5, #svgcontainer6 {
+	width: 32% !important;
+}
+
+
+#svgcontainer7, #svgcontainer8 {
+	width: 48% !important;
+}
+
+#container1 {
+	width: 100% !important;
+}
+
+#container2 {
+	width: 100% !important;
+}
+
+#container3 {
+	width: 100% !important;
+}

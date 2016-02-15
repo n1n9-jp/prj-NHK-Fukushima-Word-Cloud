@@ -1,36 +1,33 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=9">
 
+<!-- metatag -->
+<meta name="copyright" content="日本放送協会" />
+<meta name="description" content="「生活」「町」「家」「原発」。去年、１０００人以上の避難者に行ったアンケートの自由記述欄で使われていた言葉です。そこには、長引く避難生活の不満や将来への不安など、避難者の生の声が刻まれていました。自由記述欄で使われた頻度の高い単語を選び出し、「ワードクラウド」と呼ばれる手法で表現しました。単語のサイズが大きいほど、使用頻度が高いことを示しています。単語をクリックすると、単語に紐づいた避難者の思いを読むことができます。" />
+<meta name="keywords" content="日本放送協会, 福島, 避難者, アンケート, ワードクラウド" />
+<!-- /metatag -->
 
-        <!-- Hammer reload -->
-          <script>
-            setInterval(function(){
-              try {
-                if(typeof ws != 'undefined' && ws.readyState == 1){return true;}
-                ws = new WebSocket('ws://'+(location.host || 'localhost').split(':')[0]+':35353')
-                ws.onopen = function(){ws.onclose = function(){document.location.reload()}}
-                window.onbeforeunload = function() { ws = null }
-                ws.onmessage = function(){
-                  var links = document.getElementsByTagName('link');
-                    for (var i = 0; i < links.length;i++) {
-                    var link = links[i];
-                    if (link.rel === 'stylesheet' && !link.href.match(/typekit/)) {
-                      href = link.href.replace(/((&|\?)hammer=)[^&]+/,'');
-                      link.href = href + (href.indexOf('?')>=0?'&':'?') + 'hammer='+(new Date().valueOf());
-                    }
-                  }
-                }
-              }catch(e){}
-            }, 1000)
-          </script>
-        <!-- /Hammer reload -->
+<!-- facebook -->
+<meta property="og:title" content="原発事故 避難者の声〜NHK福島放送局アンケート〜">
+<meta property="og:type" content="website" />
+<meta property="og:description" content="「生活」「町」「家」「原発」。去年、１０００人以上の避難者に行ったアンケートの自由記述欄で使われていた言葉です。そこには、長引く避難生活の不満や将来への不安など、避難者の生の声が刻まれていました。自由記述欄で使われた頻度の高い単語を選び出し、「ワードクラウド」と呼ばれる手法で表現しました。単語のサイズが大きいほど、使用頻度が高いことを示しています。単語をクリックすると、単語に紐づいた避難者の思いを読むことができます。">
+<meta property="og:url" content="">
+<meta property="og:image" content="assets/images/ogp.png">
+<!-- /facebook -->
+
+<!-- twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@nhk_news">
+<meta name="twitter:creator" content="@nhk_news">
+<meta name="twitter:title" content="原発事故 避難者の声〜NHK福島放送局アンケート〜">
+<meta name="twitter:description" content="「生活」「町」「家」「原発」。去年、１０００人以上の避難者に行ったアンケートの自由記述欄で使われていた言葉です。そこには、長引く避難生活の不満や将来への不安など、避難者の生の声が刻まれていました。自由記述欄で使われた頻度の高い単語を選び出し、「ワードクラウド」と呼ばれる手法で表現しました。単語のサイズが大きいほど、使用頻度が高いことを示しています。単語をクリックすると、単語に紐づいた避難者の思いを読むことができます。">
+<meta name="twitter:image" content="assets/images/ogp.png">
+<!-- /twitter -->
       
-
 <link rel='stylesheet' href='assets/css/style.css'>
 <link rel='stylesheet' href='assets/css/z-modal.css'>
 <script src='assets/js/jquery-1.8.3.min.js'></script>
@@ -38,36 +35,20 @@
 <script src='assets/js/d3.min.js'></script>
 <script src="http://d3js.org/queue.v1.min.js" charset="utf-8"></script>
 <script src='assets/js/d3.layout.cloud.js'></script>
-<script src='assets/js/z-modal.js'></script>
-
+<script src='assets/js/snap.svg-min.js'></script>
 <script src='assets/js/app.js'></script>
 
-<link rel="apple-touch-icon" sizes="57x57" href="assets/images/favicon/apple-touch-icon-57x57.png">
-<link rel="apple-touch-icon" sizes="60x60" href="assets/images/favicon/apple-touch-icon-60x60.png">
-<link rel="apple-touch-icon" sizes="72x72" href="assets/images/favicon/apple-touch-icon-72x72.png">
-<link rel="apple-touch-icon" sizes="76x76" href="assets/images/favicon/apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" sizes="114x114" href="assets/images/favicon/apple-touch-icon-114x114.png">
-<link rel="apple-touch-icon" sizes="120x120" href="assets/images/favicon/apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" sizes="144x144" href="assets/images/favicon/apple-touch-icon-144x144.png">
-<link rel="apple-touch-icon" sizes="152x152" href="assets/images/favicon/apple-touch-icon-152x152.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicon/apple-touch-icon-180x180.png">
-<link rel="icon" type="image/png" href="assets/images/favicon/favicon-32x32.png" sizes="32x32">
-<link rel="icon" type="image/png" href="assets/images/favicon/android-chrome-192x192.png" sizes="192x192">
-<link rel="icon" type="image/png" href="assets/images/favicon/favicon-96x96.png" sizes="96x96">
-<link rel="icon" type="image/png" href="assets/images/favicon/favicon-16x16.png" sizes="16x16">
-<link rel="manifest" href="/manifest.json">
-<link rel="mask-icon" href="assets/images/favicon/safari-pinned-tab.svg" color="#5bbad5">
-<link rel="shortcut icon" href="assets/images/favicon/favicon.ico">
-<meta name="msapplication-TileColor" content="#da532c">
-<meta name="msapplication-TileImage" content="assets/images/favicon/mstile-144x144.png">
-<meta name="msapplication-config" content="/browserconfig.xml">
-<meta name="theme-color" content="#ffffff">
+<!--[if IE]>
+<link rel='stylesheet' href='assets/css/ie.css' media='all' /> 
+<![endif]-->
 
-<!-- SNSボタン-->
+<!-- favicon -->
+<link rel="shortcut icon" href="http://www3.nhk.or.jp/favicon.ico">
+
+<!-- SNS -->
 <script type="text/javascript" src="assets/js/social_buttons.js" charset="UTF-8"></script>
 <script>
     var page = new sysHash();
-
     page.hash['t'] = '1';
     page.hash['f'] = '1';
     page.hash['m'] = '0';
@@ -75,11 +56,11 @@
     page.hash['h'] = '0';
 </script>
 
+<!-- access log -->
+<script　type="text/javascript" src="http://www3.nhk.or.jp/common/js/nol_common.js" charset="UTF-8"></script>
 <title>原発事故 避難者の声〜NHK福島放送局アンケート〜</title>
 </head>
-
 <body>
-
 <header>
 
 </header>
@@ -98,7 +79,6 @@
 		</div>
 </div><!-- #header -->
 
-
 <div id="submenuBlock" class="m-all t-all d-all">
 			<div id="submenu0" class="submenu">&nbsp;</div>
 
@@ -108,17 +88,15 @@
 				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_age_70.png" />70代</div>
 			</div>
 			<div id="submenu2" class="submenu">
-				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_area_12.png" />帰還困難区域</div>
-				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_area_3.png" />居住制限区域</div>
-				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_area_4.png" />避難指示解除準備区域</div>
+				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_area_12.png" /><span>帰還困難区域</span></div>
+				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_area_3.png" /><span>居住制限区域</span></div>
+				<div class="m-1of3 t-1of3 d-1of3 nav"><img src="assets/images/icon_area_4.png" /><span>避難指示解除準備区域</span></div>
 			</div>
 			<div id="submenu3" class="submenu">
 				<div class="m-1of2 t-1of2 d-1of2 nav"><img src="assets/images/icon_gender_male.png" />男性</div>
 				<div class="m-1of2 t-1of2 d-1of2 nav"><img src="assets/images/icon_gender_female.png" />女性</div>
 			</div>
 </div><!-- #submenu -->
-
-
 
 <div id="svgContainerContainer">
 
@@ -143,16 +121,7 @@
 
 </div><!-- #svgContainer -->
 
-
-
-
-
-
-
-
-
 </div><!-- .wrap -->
-
 
 <div id="footerContainer" class="m-all t-all d-all">
 
@@ -181,9 +150,172 @@
 	</div>
 </div>
 
-
-
 </section>  
-</body>
+<script>
+  // constructor
+  this.ZMODAL = function() {
+    // global element
+    this.closeBtn = null;
+    this.modal = null;
+    this.btns = [];
+    // defaults options
+    var defaults = {
+      className : "",
+      title : "Z-MODAL",
+      content : '<h1>Congratulations!!!</h1>\
+          <p>You are using the realy awesome Z-Modal javascript plugin. <b>Thank You!</b></p>\
+          <p>Author: <a href="http://caradeuc.info/">Benjamin Caradeuc</a></p>',
+      closeBtn : false,
+      autoload:true,
+	  onClose:null,
+      buttons : [
+        { label: "ok", half: false, callback:function() { console.log('Thank you for using Z-Modal plugin.'); } }
+      ]
+    }
 
+    if(arguments[0] && typeof arguments[0] === "object"){
+      this.options = __createOptions(defaults, arguments[0]);
+    }else{
+      this.options = defaults;
+    }
+    if(this.options.autoload === true){
+      this.open.call(this);
+    }
+  }
+
+
+  /*============================================================================
+   fonctions privées
+  */
+
+  // create the options object
+  function __createOptions(defaults, props){
+    var opt = defaults; // the options to return
+    for (var prop in props){
+      if (props.hasOwnProperty(prop)) {
+        opt[prop] = props[prop];
+      }
+    }
+    return opt;
+  }
+
+  // build the html markup
+  function __build() {
+    /**
+     * If content is a string, append it.
+     * If content is a Dome node, append its content.
+     */
+    var theContent;
+        _this = this;;
+    if (typeof this.options.content === "string") {
+      theContent = this.options.content;
+    } else {
+      theContent = this.options.content.innerHTML;
+    }
+    // modal element creation
+    this.modal = document.createElement("div");
+    this.modal.className = "z-modal " + this.options.className;
+    __initListener(this.modal, "click", function (){
+      _this.close.call(_this);
+    }, true)
+    // the box
+    var box = document.createElement("div");
+    box.className = "z-modal-box";
+    this.modal.appendChild(box);
+    // the box header (title - closeBtn)
+    var header = document.createElement("div");
+    header.className = "z-modal-header";
+    // title
+    var title = document.createElement("div");
+    title.className = "z-modal-title";
+    title.innerHTML = this.options.title;
+    header.appendChild(title);
+    // closeBtn
+    if(this.options.closeBtn === true){
+      this.closeBtn = document.createElement("div");
+      this.closeBtn.className="z-modal-close";
+      this.closeBtn.innerHTML = "&#215;";
+      __initListener(this.closeBtn, "click", function() {
+        _this.close.call(_this);
+      });
+      header.appendChild(this.closeBtn)
+    }
+    // the box content
+    var content = document.createElement("div");
+    content.className="z-modal-content";
+    content.innerHTML = theContent;
+    // the box footer
+    var footer = document.createElement("div");
+    footer.className="z-modal-footer";
+    // the buttons
+    for(var i=0; i<this.options.buttons.length; i++){
+      // closure...
+      (function(i) {
+        var theBtn = _this.options.buttons[i];
+        var btn = document.createElement("div");
+        btn.className = "z-modal-btn";
+        btn.innerHTML = theBtn.label;
+        if(theBtn.half === true){
+          btn.className += " z-modal-btn-half";
+        }
+        // listeners
+        __initListener(btn, "click", function(){
+          _this.close.call(_this, _this.options.buttons[i].callback);
+        })
+        footer.appendChild(btn);
+      })(i);
+    }
+
+    // populate the box
+    box.appendChild(header);
+    box.appendChild(content);
+    box.appendChild(footer);
+
+    // add the modal to the dom ! finally!
+    document.body.appendChild(this.modal)
+
+  }
+
+  function __initListener(node, type, func, noDeep){
+    var _this = this;
+    node.addEventListener(type, function(e) {
+      // e.preventDefault();
+      if(noDeep === true){
+        if(e.target == this){
+          func();
+        }
+      }
+      else{
+        func();
+      }
+    }, false);
+  }
+
+
+  /*============================================================================
+   fonctions publiques
+  */
+
+  // open the modal (create it before ...)
+  this.ZMODAL.prototype.open = function() {
+  __build.call(this)
+  }
+
+  // close the modal (and delete it ...)
+  this.ZMODAL.prototype.close = function(callback) {
+    // execute the callback function...
+    if(typeof callback === 'function'){
+      callback();
+    } else if(typeof this.options.onClose === 'function'){
+      this.options.onClose();
+	  }	  
+	  
+    closeDetailBtn();
+
+    // remove the modal
+     this.modal.parentNode.removeChild(this.modal);
+  }
+</script>
+
+</body>
 </html>
