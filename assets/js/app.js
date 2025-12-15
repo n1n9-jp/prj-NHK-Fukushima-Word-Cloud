@@ -2,6 +2,8 @@ import Eventer from './src/Eventer.js';
 import DataLoader from './src/DataLoader.js';
 import WordCloud from './src/WordCloud.js';
 import UIManager from './src/UIManager.js';
+import DataStore from './src/DataStore.js';
+import DetailView from './src/DetailView.js';
 import { VIEWPORT, DIMENSIONS, WIDTH_ARRAY, TRANS_WIDTH, TRANS_HEIGHT } from './src/Config.js';
 
 $(function () {
@@ -22,10 +24,7 @@ $(function () {
 	var layout1, layout2, layout3;
 	var selectedWord = "";
 
-	// Data holders
-	var tags = [];
-	var allOpenText = [];
-	var detailWordsArray = [];
+	// Data holders removed (managed by DataStore)
 
 	// Clean up old D3 setup code
 	var container = $("#svgContainerContainer");
@@ -43,6 +42,8 @@ $(function () {
 		this.loader = new DataLoader(this.e);
 		this.wordCloud = new WordCloud(this.e);
 		this.ui = new UIManager();
+		this.dataStore = new DataStore();
+		this.detailView = new DetailView();
 
 		var letterTapFlagTop = false;
 		var letterTapFlag = true;
@@ -93,10 +94,8 @@ $(function () {
 
 
 		this.onDataLoaded = function (loadedTags, loadedAllOpenText, loadedDetailWordsArray) {
-			tags = loadedTags;
-			allOpenText = loadedAllOpenText;
-			detailWordsArray = loadedDetailWordsArray;
-
+			// Use DataStore
+			self.dataStore.setData(loadedTags, loadedAllOpenText, loadedDetailWordsArray);
 			self.e.publish('init:viewport');
 		};
 
@@ -108,14 +107,15 @@ $(function () {
 		};
 
 		this.drawControll = function () {
-			self.wordCloud.startDrawing(tags);
+			// Get tags from store
+			self.wordCloud.startDrawing(self.dataStore.getTags());
 		};
 
 		this.drawWhole = function () {
 			$("#submenuBlock").animate({ opacity: 'show' }, { duration: 0, easing: 'swing' });
 
-			// Use WordCloud to draw the text
-			const { topText, vis } = self.wordCloud.drawWhole(allOpenText, window.nowWidth, window.nowHeight);
+			// Use WordCloud to draw the text, passing data from store
+			const { topText, vis } = self.wordCloud.drawWhole(self.dataStore.getAllOpenText(), window.nowWidth, window.nowHeight);
 			if (!vis) return;
 
 			topText.transition()
@@ -255,7 +255,9 @@ $(function () {
 				.text("開始する");
 
 			if (container.width() < 481) {
-				dialogMobile();
+				// Delegate to UI manager if needed, but appearedContainer handles it?
+				// app.js flow calls dialogMobile in appearContainer.
+				// UIManager.showContainer handles it.
 			}
 		};
 
@@ -323,174 +325,18 @@ $(function () {
 
 
 		this.showDetail = function () {
+			// New logic using DataStore and DetailView
+			const result = self.dataStore.findDetails(selectedWord, currentNum);
+			const options = self.detailView.generateModalOptions(result, selectedWord);
 
-			if (currentNum == 0) {
+			const zdal = new ZMODAL(options);
 
-				var wholeVoice = "";
-
-
-				for (var j = 1; j < 9; j++) {
-
-					var _age = "", _sex = "", _area = "", _keyword = "", _expression = "";
-
-					for (var i = 0; i < detailWordsArray[j].length; i++) {
-						if (detailWordsArray[j][i]["keyword"] == selectedWord) {
-							_age = detailWordsArray[j][i]["age"];
-							_sex = detailWordsArray[j][i]["sex"];
-							_area = parseInt(detailWordsArray[j][i]["area"]);
-							_keyword = detailWordsArray[j][i]["keyword"];
-							_expression = detailWordsArray[j][i]["expression"];
-						}
-					};
-
-					if (!_age == "") {
-
-						var _areatext;
-
-						switch (_area) {
-							case 0:
-								_areatext = "";
-								break;
-							case 1:
-								_areatext = "帰還困難区域";
-								break;
-							case 2:
-								_areatext = "帰還困難区域";
-								break;
-							case 3:
-								_areatext = "居住制限区域";
-								break;
-							case 4:
-								_areatext = "避難指示解除準備区域";
-								break;
-							default:
-								_areatext = "";
-								break;
-						}
-
-						if (_age != "") {
-							_age += '歳 ';
-						}
-
-						wholeVoice = wholeVoice + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>' + '<div class="attr area">' + _expression + '</div>';
-					}
-
-				}
-
-
-				//例外処理
-				if (wholeVoice == "") {
-
-					var _age = "", _sex = "", _area = "", _keyword = "", _expression = "";
-
-					for (var k = 0; k < detailWordsArray[0].length; k++) {
-
-						if (detailWordsArray[0][k]["keyword"] == selectedWord) {
-							_age = detailWordsArray[0][k]["age"];
-							_sex = detailWordsArray[0][k]["sex"];
-							_area = parseInt(detailWordsArray[0][k]["area"]);
-							_keyword = detailWordsArray[0][k]["keyword"];
-							_expression = detailWordsArray[0][k]["expression"];
-
-							var _areatext;
-
-							switch (_area) {
-								case 0:
-									_areatext = "";
-									break;
-								case 1:
-									_areatext = "帰還困難区域";
-									break;
-								case 2:
-									_areatext = "帰還困難区域";
-									break;
-								case 3:
-									_areatext = "居住制限区域";
-									break;
-								case 4:
-									_areatext = "避難指示解除準備区域";
-									break;
-								default:
-									_areatext = "";
-									break;
-							}
-
-							if (_age != "") {
-								_age += '歳 ';
-							}
-
-							wholeVoice = wholeVoice + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>' + '<div class="attr area">' + _expression + '</div>';
-
-						}
-					};
-				}
-
-
-				var options = {
-					title: '避難者の声',
-					content: wholeVoice,
-					buttons: [{
-						label: '閉じる'
-					}]
-				};
-
-				var zdal = new ZMODAL(options);
-
+			// Adjust modal position - logic from original code
+			if (currentNum === 0) {
 				d3.select('.z-modal-box').style("top", "50%");
-
 			} else {
-
-				for (var i = 0; i < detailWordsArray[vidId].length; i++) {
-					if (detailWordsArray[vidId][i]["keyword"] == selectedWord) {
-						var _age = detailWordsArray[vidId][i]["age"];
-						var _sex = detailWordsArray[vidId][i]["sex"];
-						var _area = parseInt(detailWordsArray[vidId][i]["area"]);
-						var _keyword = detailWordsArray[vidId][i]["keyword"];
-						var _expression = detailWordsArray[vidId][i]["expression"];
-					}
-				};
-
-				var _areatext;
-
-				switch (_area) {
-					case 0:
-						_areatext = "";
-						break;
-					case 1:
-						_areatext = "帰還困難区域";
-						break;
-					case 2:
-						_areatext = "帰還困難区域";
-						break;
-					case 3:
-						_areatext = "居住制限区域";
-						break;
-					case 4:
-						_areatext = "避難指示解除準備区域";
-						break;
-					default:
-						_areatext = "";
-						break;
-				}
-
-				if (_age != "") {
-					_age += '歳 ';
-				}
-
-				var options = {
-					title: '避難者の声' + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>',
-					content: '<div class="attr area">' + _expression + '</div>',
-					buttons: [{
-						label: '閉じる'
-					}]
-				};
-
-				var zdal = new ZMODAL(options);
-
 				d3.select('.z-modal-box').style("top", "60%");
 			}
-
-
 		};
 
 
