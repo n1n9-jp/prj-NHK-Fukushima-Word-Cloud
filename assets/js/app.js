@@ -1,6 +1,7 @@
 import Eventer from './src/Eventer.js';
 import DataLoader from './src/DataLoader.js';
 import WordCloud from './src/WordCloud.js';
+import UIManager from './src/UIManager.js';
 import { VIEWPORT, DIMENSIONS, WIDTH_ARRAY, TRANS_WIDTH, TRANS_HEIGHT } from './src/Config.js';
 
 $(function () {
@@ -36,12 +37,13 @@ $(function () {
 
 	var Graph = function () {
 
+
 		var self = this;
 		this.e = eventer;
 		this.loader = new DataLoader(this.e);
 		this.wordCloud = new WordCloud(this.e);
+		this.ui = new UIManager();
 
-		var aboutFlg = "close";
 		var letterTapFlagTop = false;
 		var letterTapFlag = true;
 		var selectObj;
@@ -62,49 +64,32 @@ $(function () {
 			this.e.subscribe('container:disappear', this.disappearContainer);
 			this.e.subscribe('container:appear', this.appearContainer);
 			this.e.subscribe('show:detail', this.showDetail);
-			this.e.subscribe('draw:about', this.aboutLink);
+			// this.e.subscribe('draw:about', this.aboutLink); // handled by UI manager now implicitly or we call setup
+
+			// Initialize UI components
+			this.ui.initNavigation(["全体", "年齢別", "避難区域別", "性別"], currentNum, function (index) {
+				prevNum = currentNum;
+				currentNum = index;
+				resizeSVG();
+				self.e.publish('container:disappear');
+			});
+
+			this.ui.setupAboutLink();
 
 			// Subscribe to WordCloud events
 			this.e.subscribe('word:clicked', this.handleWordClick);
 			this.e.subscribe('word:clicked:whole', this.handleWholeWordClick);
 
+			// Re-bind draw:about if needed (WordCloud emits it, but UIManager handles click)
+			this.e.subscribe('draw:about', () => {
+				// Trigger click on about link or similar if needed, 
+				// but original logic was just setting up the listener.
+				// UIManager.setupAboutLink handles the click listener.
+			});
+
 			// Start data loading
 			this.loader.load();
 		};
-
-
-		this.aboutLink = function () {
-
-			$("#aboutLink").click(function () {
-
-				if (aboutFlg == "close") { //open about
-
-					var options = {
-						title: 'このサイトについて',
-						content: '<ul><li>' + 'アンケートは、ＮＨＫ福島放送局が２０１４年１１月～１２月にかけて、原発から半径１０キロ圏内にある大熊町、双葉町、浪江町、富岡町の４つの町から県の内外に避難している住民５０００人を対象に行い、１１５４人から回答を得ました。' + '</li><li>' + 'ワードクラウドとは、文章中で出現頻度が高い単語を複数選びだし、出現頻度に応じた大きさで図示する表現手法です。単語の抽出は、以下の形態素解析エンジンと辞書を利用し、名詞のみを抽出して集計しました。出現頻度が１０回以上の単語を掲載しています。' + '</li><ul><li>' + '利用した形態素解析エンジン：MeCab (version: 0.996)' + '</li><li>' + '利用した辞書：mecab-ipadic-neologd (version: 102)' + '</li></ul><li>' + '自由記述欄はアンケートの末尾に設けられ、将来の住まいや町の姿に関する要望や意見を伺いました。できるかぎり原文に忠実に掲載していますが、一部には、読みやすいように句読点を付け加えています。また、ワードクラウドを制作するにあたって、単語表記はＮＨＫの基準に合わせました。（例）「子供」→「子ども」' + '</li></ul><p>' + '制作）山本 智　管野 彰彦　矢崎 裕一（visualizing.jp）' + '</p>',
-						buttons: [{
-							label: '閉じる'
-						}]
-					};
-
-					var zdal = new ZMODAL(options);
-
-					d3.select('.z-modal-box').style("top", "50%");
-
-					$("#aboutLink").animate({ opacity: 'hide' }, { duration: 0, easing: 'swing' });
-					aboutFlg = "open";
-				};
-			});
-
-			$("#aboutLink").mouseover(function () {
-				d3.select(this).transition().duration(0).style({ fill: '#999999' }).style("cursor", "pointer");
-			});
-
-			$("#aboutLink").mouseout(function () {
-				d3.select(this).transition().duration(0).style({ fill: '#333333' });
-			});
-
-		}
 
 
 		this.onDataLoaded = function (loadedTags, loadedAllOpenText, loadedDetailWordsArray) {
@@ -509,94 +494,24 @@ $(function () {
 		};
 
 
-		/* ---------------
-		navigation
-		--------------- */
-
-		var menuItems = d3.select("#radioBlock").append('form').selectAll("span")
-			.data(["全体", "年齢別", "避難区域別", "性別"])
-			.enter().append("span").attr("class", "navColumn");
-
-		menuItems.append("input")
-			.attr({
-				type: "radio",
-				class: "nav",
-				name: "nav",
-				value: function (d, i) { return i; }
-			})
-			.attr('id', function (d, i) {
-				return "id" + i;
-			})
-			.attr('value', function (d, i) {
-				return d;
-			})
-			.property("checked", function (d, i) {
-				if (i === prevNum) { return true; } else { return false; };
-			})
-			.on("change", function (d, i) {
-				prevNum = currentNum;
-				currentNum = i;
-				resizeSVG();
-				self.e.publish('container:disappear');
-			});
-
-
-		menuItems.append("label")
-			.attr('for', function (d, i) {
-				return "id" + i;
-			})
-			.attr({
-				class: "btn"
-			})
-			.text(function (d, i) {
-				return d;
-			});
-
 
 		this.disappearContainer = function () {
-
-			$("#container" + prevNum).animate({ opacity: 'hide' }, { duration: 0, easing: 'swing' });
-			$("#submenu" + prevNum).animate({ opacity: 'hide' }, { duration: 0, easing: 'swing' });
-			self.e.publish('container:appear');
-
+			self.ui.hideContainer(prevNum, function () {
+				self.e.publish('container:appear');
+			});
 		}
-
 
 		this.appearContainer = function () {
-
-			$("#container" + currentNum).animate({ opacity: 'show' }, { duration: 1000, easing: 'swing' });
-			$("#submenu" + currentNum).animate({ opacity: 'show' }, { duration: 1000, easing: 'swing' });
-
-			if ((currentNum == 0) && (container.width() < 481)) {
-				dialogMobile();
-			}
+			self.ui.showContainer(currentNum, (currentNum == 0 && container.width() < 481));
 		}
-
-
-
-
-		function dialogMobile() {
-
-			var options = {
-				title: 'スマートフォンをご利用の方',
-				content: '横向きでの閲覧をおすすめいたします。',
-				buttons: [{
-					label: '閉じる'
-				}]
-			};
-
-			var zdal = new ZMODAL(options);
-			d3.select('.z-modal-box').style("top", "50%");
-
-		};
-
 
 		this.opacityFull = function () {
 			// Logic to restore opacity
-			if (aboutFlg == "open") {
-				$("#aboutLink").animate({ opacity: 'show' }, { duration: 0, easing: 'swing' });
-				aboutFlg = "close";
-			} else if (aboutFlg == "close") {
+			// Delegate aboutLink restoration to UI manager
+			if (self.ui.restoreAboutLink()) {
+				// handled
+			} else {
+				// ... rest of opacity logic
 				// Restore via D3 selectors directly as we don't hold 'vis' array here anymore
 				// or better, delegate to WordCloud
 
