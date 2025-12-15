@@ -1,55 +1,12 @@
-$(function(){
+import Eventer from './src/Eventer.js';
+import { VIEWPORT, DIMENSIONS, WIDTH_ARRAY, TRANS_WIDTH, TRANS_HEIGHT } from './src/Config.js';
+
+$(function () {
 
 	/* ---------------
 	Eventer function
 	--------------- */
-	var Eventer = function() {
-
-	    if( !(this instanceof Eventer) ) {
-	        return new Eventer();
-	    }
-
-	    cache = {};
-
-	    this.publish = function(topic, args){
-	        if(typeof cache[topic] === 'object') {    
-	            cache[topic].forEach(function(property){
-	                property.apply(this, args || []);
-	            });
-	        }
-	    };
-
-	    this.subscribe = function(topic, callback){
-	        if(!cache[topic]){
-	            cache[topic] = [];
-	        }
-	        cache[topic].push(callback);
-	        return [topic, callback]; 
-	    };
-
-	    this.unsubscribe = function(topic, fn){
-	        if( cache[topic] ) {
-	            cache[topic].forEach(function(element, idx){
-	                if(element == fn){
-	                    cache[topic].splice(idx, 1);
-	                }
-	            });
-	        }
-	    };
-
-	    this.queue = function() {
-	        return cache;
-	    };
-
-	    // alias
-	    this.on      = this.subscribe;
-	    this.off     = this.unsubscribe;
-	    this.trigger = this.publish;
-
-	  return this;
-	};
-
-	var eventer = new Eventer;
+	var eventer = new Eventer();
 
 
 	/* ---------------
@@ -58,146 +15,118 @@ $(function(){
 
 	var currentNum = 0, prevNum = 0;
 	var vis = new Array(); var vid = 1; var vidId = 0;
-    var fontSizeScale = d3.scale['sqrt']().range([14, 180]);
-    var layout1, layout2, layout3;
-    var selectedWord="";
-    var detailWords, allOpenText;
-    var detailWordsArray = new Array();
+	var fontSizeScale = d3.scale['sqrt']().range([14, 180]);
+	var layout1, layout2, layout3;
+	var selectedWord = "";
+	var detailWords, allOpenText;
+	var detailWordsArray = new Array();
 
 	/* ---------------
 	Viewport
 	--------------- */
-	var bWidth = 1200, bHeight = 500;
-	var margin = {top: 0, right: 0, bottom: 0, left: 0},
-	    width  = bWidth  - margin.left - margin.right,
-	    height = bHeight - margin.top - margin.bottom;
-	var aspect = bWidth / bHeight;
+	var width = DIMENSIONS.width;
+	var height = DIMENSIONS.height;
+	var aspect = DIMENSIONS.aspect;
 
-	nowWidth = bWidth, nowHeight = bHeight;
+	window.nowWidth = VIEWPORT.bWidth;
+	window.nowHeight = VIEWPORT.bHeight;
 
-	var widthArray = new Array();
-	widthArray[0] = 1200;
-	widthArray[1] = 400;
-	widthArray[2] = 400;
-	widthArray[3] = 400;
-	widthArray[4] = 400;
-	widthArray[5] = 400;
-	widthArray[6] = 400;
-	widthArray[7] = 600;
-	widthArray[8] = 600;
+	var widthArray = WIDTH_ARRAY;
 
-	var transWidth = new Array();
-	transWidth[0] = width/2;
-	transWidth[1] = widthArray[1]/2;
-	transWidth[2] = widthArray[2]/2;
-	transWidth[3] = widthArray[3]/2;
-	transWidth[4] = widthArray[4]/2;
-	transWidth[5] = widthArray[5]/2;
-	transWidth[6] = widthArray[6]/2;	
-	transWidth[7] = widthArray[7]/2;
-	transWidth[8] = widthArray[8]/2;
+	var transWidth = TRANS_WIDTH;
 
-	var transHeight = new Array();
-	transHeight[0] = height/2;
-	transHeight[1] = height/2;
-	transHeight[2] = height/2;
-	transHeight[3] = height/2;
-	transHeight[4] = height/2;
-	transHeight[5] = height/2;
-	transHeight[6] = height/2;
-	transHeight[7] = height/2;
-	transHeight[8] = height/2;
+	var transHeight = TRANS_HEIGHT;
 
 	var container = $("#svgContainerContainer");
 
 
 	/* all */
 	vis[0] = d3.select("#svgcontainer0").append("svg")
-	    .attr("width", widthArray[0])
-	    .attr("height", height)
-	    .attr("viewBox", "0 0 1200 500")
-	    .attr("preserveAspectRatio", "xMidYMid")
-	    .attr("id", "chartArea0")
-	  .append("g")
-	    .attr("transform", "translate(" + transWidth[0] + "," + transHeight[0] + ")");
+		.attr("width", widthArray[0])
+		.attr("height", height)
+		.attr("viewBox", "0 0 1200 500")
+		.attr("preserveAspectRatio", "xMidYMid")
+		.attr("id", "chartArea0")
+		.append("g")
+		.attr("transform", "translate(" + transWidth[0] + "," + transHeight[0] + ")");
 
 
 	/* age */
 	vis[1] = d3.select("#svgcontainer1").append("svg")
-	    .attr("width", widthArray[1])
-	    .attr("height", height)
-	    .attr("viewBox", "0 0 400 500")
-	    .attr("preserveAspectRatio", "xMidYMid")
-	    .attr("id", "chartArea1")
-	  .append("g")
-	     .attr("transform", "translate(" + transWidth[1] + "," + transHeight[1] + ")");
+		.attr("width", widthArray[1])
+		.attr("height", height)
+		.attr("viewBox", "0 0 400 500")
+		.attr("preserveAspectRatio", "xMidYMid")
+		.attr("id", "chartArea1")
+		.append("g")
+		.attr("transform", "translate(" + transWidth[1] + "," + transHeight[1] + ")");
 
 	vis[2] = d3.select("#svgcontainer2").append("svg")
-	    .attr("width", widthArray[2])
-	    .attr("height", height)
-	    .attr("viewBox", "0 0 400 500")
-	    .attr("preserveAspectRatio", "xMidYMid")
-	    .attr("id", "chartArea2")
-	  .append("g")
-	     .attr("transform", "translate(" + transWidth[2] + "," + transHeight[2] + ")");
+		.attr("width", widthArray[2])
+		.attr("height", height)
+		.attr("viewBox", "0 0 400 500")
+		.attr("preserveAspectRatio", "xMidYMid")
+		.attr("id", "chartArea2")
+		.append("g")
+		.attr("transform", "translate(" + transWidth[2] + "," + transHeight[2] + ")");
 
 	vis[3] = d3.select("#svgcontainer3").append("svg")
-	    .attr("width", widthArray[3])
-	    .attr("height", height)
-	    .attr("viewBox", "0 0 400 500")
-	    .attr("preserveAspectRatio", "xMidYMid")
-	    .attr("id", "chartArea3")
-	  .append("g")
-	     .attr("transform", "translate(" + transWidth[3] + "," + transHeight[3] + ")");
+		.attr("width", widthArray[3])
+		.attr("height", height)
+		.attr("viewBox", "0 0 400 500")
+		.attr("preserveAspectRatio", "xMidYMid")
+		.attr("id", "chartArea3")
+		.append("g")
+		.attr("transform", "translate(" + transWidth[3] + "," + transHeight[3] + ")");
 
 
 	/* area */
 	vis[4] = d3.select("#svgcontainer4").append("svg")
-	    .attr("width", widthArray[4])
-	    .attr("height", height)
-	    .attr("viewBox", "0 0 400 500")
-	    .attr("preserveAspectRatio", "xMidYMid")
-	    .attr("id", "chartArea4")
-	  .append("g")
-	    .attr("transform", "translate(" + transWidth[4] + "," +transHeight[4] + ")");
+		.attr("width", widthArray[4])
+		.attr("height", height)
+		.attr("viewBox", "0 0 400 500")
+		.attr("preserveAspectRatio", "xMidYMid")
+		.attr("id", "chartArea4")
+		.append("g")
+		.attr("transform", "translate(" + transWidth[4] + "," + transHeight[4] + ")");
 
 	vis[5] = d3.select("#svgcontainer5").append("svg")
-	    .attr("width", widthArray[5])
-	    .attr("height", height)
-	    .attr("viewBox", "0 0 400 500")
-	    .attr("preserveAspectRatio", "xMidYMid")
-	    .attr("id", "chartArea5")
-	  .append("g")
-	    .attr("transform", "translate(" + transWidth[5] + "," + transHeight[5] + ")");
+		.attr("width", widthArray[5])
+		.attr("height", height)
+		.attr("viewBox", "0 0 400 500")
+		.attr("preserveAspectRatio", "xMidYMid")
+		.attr("id", "chartArea5")
+		.append("g")
+		.attr("transform", "translate(" + transWidth[5] + "," + transHeight[5] + ")");
 
 	vis[6] = d3.select("#svgcontainer6").append("svg")
-	    .attr("width", widthArray[6])
-	    .attr("height", height)
-	    .attr("viewBox", "0 0 400 500")
-	    .attr("preserveAspectRatio", "xMidYMid")
-	    .attr("id", "chartArea6")
-	  .append("g")
-	    .attr("transform", "translate(" + transWidth[6] + "," + transHeight[6] + ")");
+		.attr("width", widthArray[6])
+		.attr("height", height)
+		.attr("viewBox", "0 0 400 500")
+		.attr("preserveAspectRatio", "xMidYMid")
+		.attr("id", "chartArea6")
+		.append("g")
+		.attr("transform", "translate(" + transWidth[6] + "," + transHeight[6] + ")");
 
 
 	/* gender */
 	vis[7] = d3.select("#svgcontainer7").append("svg")
-	    .attr("width", widthArray[7])
-	    .attr("height", height)
-	    .attr("viewBox", "0 0 600 500")
-	    .attr("preserveAspectRatio", "xMidYMid")
-	    .attr("id", "chartArea7")
-	  .append("g")
-	    .attr("transform", "translate(" + transWidth[7] + "," + transHeight[7] + ")");
+		.attr("width", widthArray[7])
+		.attr("height", height)
+		.attr("viewBox", "0 0 600 500")
+		.attr("preserveAspectRatio", "xMidYMid")
+		.attr("id", "chartArea7")
+		.append("g")
+		.attr("transform", "translate(" + transWidth[7] + "," + transHeight[7] + ")");
 
 	vis[8] = d3.select("#svgcontainer8").append("svg")
-	    .attr("width", widthArray[8])
-	    .attr("height", height)
-	    .attr("viewBox", "0 0 600 500")
-	    .attr("preserveAspectRatio", "xMidYMid")
-	    .attr("id", "chartArea8")
-	  .append("g")
-	    .attr("transform", "translate(" + transWidth[8] + "," + transHeight[8] + ")");
+		.attr("width", widthArray[8])
+		.attr("height", height)
+		.attr("viewBox", "0 0 600 500")
+		.attr("preserveAspectRatio", "xMidYMid")
+		.attr("id", "chartArea8")
+		.append("g")
+		.attr("transform", "translate(" + transWidth[8] + "," + transHeight[8] + ")");
 
 
 	/*  for timer */
@@ -205,687 +134,686 @@ $(function(){
 	var interval = 1000;
 
 
-	var Graph = function() {
+	var Graph = function () {
 
-	    var self = this;
-	    this.e = new Eventer;
+		var self = this;
+		this.e = new Eventer;
 
-    	var tags = new Array();
+		var tags = new Array();
 
-    	var aboutFlg = "close";
-    	var letterTapFlagTop = false;
-    	var letterTapFlag = true;
-    	var selectObj;
-    	var originalSize, hoverToggle;
-	    var btnHoverToggle = false;
+		var aboutFlg = "close";
+		var letterTapFlagTop = false;
+		var letterTapFlag = true;
+		var selectObj;
+		var originalSize, hoverToggle;
+		var btnHoverToggle = false;
 
-	    var grayScale = d3.scale.linear()
-	      .domain([1, 80])
-	      .range(["#DDD", "#FFF"]);
+		var grayScale = d3.scale.linear()
+			.domain([1, 80])
+			.range(["#DDD", "#FFF"]);
 
-	    this.init = function() {
-	        this.e.subscribe( 'load', this.getData );
-	        this.e.subscribe( 'init:viewport', this.initViewport );
-        	this.e.subscribe( 'draw:controll', this.drawControll );
-        	this.e.subscribe( 'draw:whole', this.drawWhole );
-	        this.e.subscribe( 'container:disappear', this.disappearContainer );
-	        this.e.subscribe( 'container:appear', this.appearContainer );
-        	this.e.subscribe( 'show:detail', this.showDetail );
-	        this.e.subscribe( 'draw:about', this.aboutLink );
+		this.init = function () {
+			this.e.subscribe('load', this.getData);
+			this.e.subscribe('init:viewport', this.initViewport);
+			this.e.subscribe('draw:controll', this.drawControll);
+			this.e.subscribe('draw:whole', this.drawWhole);
+			this.e.subscribe('container:disappear', this.disappearContainer);
+			this.e.subscribe('container:appear', this.appearContainer);
+			this.e.subscribe('show:detail', this.showDetail);
+			this.e.subscribe('draw:about', this.aboutLink);
 
-	        this.e.publish( 'load' );
-	    };
-
-
-	    this.aboutLink = function() {
-
-		    $("#aboutLink").click(function(){
-
-		        if(aboutFlg == "close"){ //open about
-
-					    var options = {
-					        title : 'このサイトについて',
-					        content : '<ul><li>' + 'アンケートは、ＮＨＫ福島放送局が２０１４年１１月～１２月にかけて、原発から半径１０キロ圏内にある大熊町、双葉町、浪江町、富岡町の４つの町から県の内外に避難している住民５０００人を対象に行い、１１５４人から回答を得ました。' + '</li><li>' + 'ワードクラウドとは、文章中で出現頻度が高い単語を複数選びだし、出現頻度に応じた大きさで図示する表現手法です。単語の抽出は、以下の形態素解析エンジンと辞書を利用し、名詞のみを抽出して集計しました。出現頻度が１０回以上の単語を掲載しています。' + '</li><ul><li>' + '利用した形態素解析エンジン：MeCab (version: 0.996)' + '</li><li>' + '利用した辞書：mecab-ipadic-neologd (version: 102)' + '</li></ul><li>' + '自由記述欄はアンケートの末尾に設けられ、将来の住まいや町の姿に関する要望や意見を伺いました。できるかぎり原文に忠実に掲載していますが、一部には、読みやすいように句読点を付け加えています。また、ワードクラウドを制作するにあたって、単語表記はＮＨＫの基準に合わせました。（例）「子供」→「子ども」' + '</li></ul><p>' + '制作）山本 智　管野 彰彦　矢崎 裕一（visualizing.jp）' + '</p>',
-					        buttons : [{
-					            label: '閉じる'
-					        }]
-					    };
-
-					    var zdal = new ZMODAL(options);
-
-					    d3.select('.z-modal-box').style("top", "50%");
-
-						$("#aboutLink").animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
-						aboutFlg = "open";
-		         };
-		    });
-
-		    $("#aboutLink").mouseover(function(){
-				d3.select(this).transition().duration(0).style({fill:'#999999'}).style("cursor", "pointer");
-		    });
-
-		    $("#aboutLink").mouseout(function(){
-				d3.select(this).transition().duration(0).style({fill:'#333333'});
-		    });
-
-	    }
+			this.e.publish('load');
+		};
 
 
-		this.getData = function() {
+		this.aboutLink = function () {
 
-		    queue()
-		        .defer(d3.tsv, "assets/data/all.tsv")
-		        .defer(d3.tsv, "assets/data/all_open.tsv")
-		        .defer(d3.tsv, "assets/data/age203040.tsv")
-		        .defer(d3.tsv, "assets/data/age5060.tsv")
-		        .defer(d3.tsv, "assets/data/age70.tsv")
-		        .defer(d3.tsv, "assets/data/area12.tsv")
-		        .defer(d3.tsv, "assets/data/area3.tsv")
-		        .defer(d3.tsv, "assets/data/area4.tsv")
-		        .defer(d3.tsv, "assets/data/genderMale.tsv")
-		        .defer(d3.tsv, "assets/data/genderFemale.tsv")
-		        .defer(d3.tsv, "assets/data/detail0.tsv")
-		        .defer(d3.tsv, "assets/data/detail1.tsv")
-		        .defer(d3.tsv, "assets/data/detail2.tsv")
-		        .defer(d3.tsv, "assets/data/detail3.tsv")
-		        .defer(d3.tsv, "assets/data/detail4.tsv")
-		        .defer(d3.tsv, "assets/data/detail5.tsv")
-		        .defer(d3.tsv, "assets/data/detail6.tsv")
-		        .defer(d3.tsv, "assets/data/detail7.tsv")
-		        .defer(d3.tsv, "assets/data/detail8.tsv")
-		        .await(loadReady);
+			$("#aboutLink").click(function () {
 
+				if (aboutFlg == "close") { //open about
 
-		    function loadReady(_error, _all, _allopen, _age203040, 
-		    					_age5060, _age70, _area12, _area3, _area4, 
-		    					_genderMale, _genderFemale,
-		    					_detail0, _detail1, _detail2, _detail3, _detail4, _detail5, _detail6, _detail7, _detail8)
-		    {
-		    	tags[0] = $.extend(true, [], _all);
-		    	tags[1] = $.extend(true, [], _age203040);
-		    	tags[2] = $.extend(true, [], _age5060);
-		    	tags[3] = $.extend(true, [], _age70);
-		    	tags[4] = $.extend(true, [], _area12);
-		    	tags[5] = $.extend(true, [], _area3);
-		    	tags[6] = $.extend(true, [], _area4);    	
-		    	tags[7] = $.extend(true, [], _genderMale);
-		    	tags[8] = $.extend(true, [], _genderFemale);
+					var options = {
+						title: 'このサイトについて',
+						content: '<ul><li>' + 'アンケートは、ＮＨＫ福島放送局が２０１４年１１月～１２月にかけて、原発から半径１０キロ圏内にある大熊町、双葉町、浪江町、富岡町の４つの町から県の内外に避難している住民５０００人を対象に行い、１１５４人から回答を得ました。' + '</li><li>' + 'ワードクラウドとは、文章中で出現頻度が高い単語を複数選びだし、出現頻度に応じた大きさで図示する表現手法です。単語の抽出は、以下の形態素解析エンジンと辞書を利用し、名詞のみを抽出して集計しました。出現頻度が１０回以上の単語を掲載しています。' + '</li><ul><li>' + '利用した形態素解析エンジン：MeCab (version: 0.996)' + '</li><li>' + '利用した辞書：mecab-ipadic-neologd (version: 102)' + '</li></ul><li>' + '自由記述欄はアンケートの末尾に設けられ、将来の住まいや町の姿に関する要望や意見を伺いました。できるかぎり原文に忠実に掲載していますが、一部には、読みやすいように句読点を付け加えています。また、ワードクラウドを制作するにあたって、単語表記はＮＨＫの基準に合わせました。（例）「子供」→「子ども」' + '</li></ul><p>' + '制作）山本 智　管野 彰彦　矢崎 裕一（visualizing.jp）' + '</p>',
+						buttons: [{
+							label: '閉じる'
+						}]
+					};
 
-		    	allOpenText = $.extend(true, [], _allopen);
+					var zdal = new ZMODAL(options);
 
-		    	//detailWords = $.extend(true, [], _detail);
+					d3.select('.z-modal-box').style("top", "50%");
 
-		    	detailWordsArray[0] = $.extend(true, [], _detail0);
-		    	detailWordsArray[1] = $.extend(true, [], _detail1);
-		    	detailWordsArray[2] = $.extend(true, [], _detail2);
-		    	detailWordsArray[3] = $.extend(true, [], _detail3);
-		    	detailWordsArray[4] = $.extend(true, [], _detail4);
-		    	detailWordsArray[5] = $.extend(true, [], _detail5);
-		    	detailWordsArray[6] = $.extend(true, [], _detail6);
-		    	detailWordsArray[7] = $.extend(true, [], _detail7);
-		    	detailWordsArray[8] = $.extend(true, [], _detail8);
+					$("#aboutLink").animate({ opacity: 'hide' }, { duration: 0, easing: 'swing' });
+					aboutFlg = "open";
+				};
+			});
 
-            	self.e.publish('init:viewport');
-		    }
+			$("#aboutLink").mouseover(function () {
+				d3.select(this).transition().duration(0).style({ fill: '#999999' }).style("cursor", "pointer");
+			});
+
+			$("#aboutLink").mouseout(function () {
+				d3.select(this).transition().duration(0).style({ fill: '#333333' });
+			});
 
 		}
 
 
-	    this.initViewport = function() {
+		this.getData = function () {
 
-	        layout1 = d3.layout.cloud()
-	                .timeInterval(Infinity)
-	                .size([width, height])
-	                .fontSize(function(d) {
-	                    return fontSizeScale(+d.value);
-	                })
-	                .text(function(d) {
-	                    return d.key;
-	                })
-	                .on("end", draw);
-	        layout1.font('YuGothic').spiral('archimedean');
-
-
-	        layout2 = d3.layout.cloud()
-	                .timeInterval(Infinity)
-	                .size([width/2, height])
-	                .fontSize(function(d) {
-	                    return fontSizeScale(+d.value);
-	                })
-	                .text(function(d) {
-	                    return d.key;
-	                })
-	                .on("end", draw);
-	        layout2.font('YuGothic').spiral('archimedean');
+			queue()
+				.defer(d3.tsv, "assets/data/all.tsv")
+				.defer(d3.tsv, "assets/data/all_open.tsv")
+				.defer(d3.tsv, "assets/data/age203040.tsv")
+				.defer(d3.tsv, "assets/data/age5060.tsv")
+				.defer(d3.tsv, "assets/data/age70.tsv")
+				.defer(d3.tsv, "assets/data/area12.tsv")
+				.defer(d3.tsv, "assets/data/area3.tsv")
+				.defer(d3.tsv, "assets/data/area4.tsv")
+				.defer(d3.tsv, "assets/data/genderMale.tsv")
+				.defer(d3.tsv, "assets/data/genderFemale.tsv")
+				.defer(d3.tsv, "assets/data/detail0.tsv")
+				.defer(d3.tsv, "assets/data/detail1.tsv")
+				.defer(d3.tsv, "assets/data/detail2.tsv")
+				.defer(d3.tsv, "assets/data/detail3.tsv")
+				.defer(d3.tsv, "assets/data/detail4.tsv")
+				.defer(d3.tsv, "assets/data/detail5.tsv")
+				.defer(d3.tsv, "assets/data/detail6.tsv")
+				.defer(d3.tsv, "assets/data/detail7.tsv")
+				.defer(d3.tsv, "assets/data/detail8.tsv")
+				.await(loadReady);
 
 
-	        layout3 = d3.layout.cloud()
-	                .timeInterval(Infinity)
-	                .size([width/3, height])
-	                .fontSize(function(d) {
-	                    return fontSizeScale(+d.value);
-	                })
-	                .text(function(d) {
-	                    return d.key;
-	                })
-	                .on("end", draw);
-	        layout3.font('YuGothic').spiral('archimedean');
+			function loadReady(_error, _all, _allopen, _age203040,
+				_age5060, _age70, _area12, _area3, _area4,
+				_genderMale, _genderFemale,
+				_detail0, _detail1, _detail2, _detail3, _detail4, _detail5, _detail6, _detail7, _detail8) {
+				tags[0] = $.extend(true, [], _all);
+				tags[1] = $.extend(true, [], _age203040);
+				tags[2] = $.extend(true, [], _age5060);
+				tags[3] = $.extend(true, [], _age70);
+				tags[4] = $.extend(true, [], _area12);
+				tags[5] = $.extend(true, [], _area3);
+				tags[6] = $.extend(true, [], _area4);
+				tags[7] = $.extend(true, [], _genderMale);
+				tags[8] = $.extend(true, [], _genderFemale);
+
+				allOpenText = $.extend(true, [], _allopen);
+
+				//detailWords = $.extend(true, [], _detail);
+
+				detailWordsArray[0] = $.extend(true, [], _detail0);
+				detailWordsArray[1] = $.extend(true, [], _detail1);
+				detailWordsArray[2] = $.extend(true, [], _detail2);
+				detailWordsArray[3] = $.extend(true, [], _detail3);
+				detailWordsArray[4] = $.extend(true, [], _detail4);
+				detailWordsArray[5] = $.extend(true, [], _detail5);
+				detailWordsArray[6] = $.extend(true, [], _detail6);
+				detailWordsArray[7] = $.extend(true, [], _detail7);
+				detailWordsArray[8] = $.extend(true, [], _detail8);
+
+				self.e.publish('init:viewport');
+			}
+
+		}
 
 
-	        fontSizeScale.domain([10, 255])
+		this.initViewport = function () {
 
-	        self.e.publish('draw:controll');
-	        self.e.publish('draw:whole');
-
-	    };
-
-
-	    this.drawWhole = function() {
-
-			$("#submenuBlock").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
-
-	    	var _width = widthArray[0];
-	        vis[0].attr("width", _width).attr("height", height);
-
-
-	        var topText = vis[0].selectAll(".alltext")
-	                .data(allOpenText)
-	                .enter().append("text")
-	                .attr("class", "alltext")
-	                .attr("text-anchor", "middle")
-	                .attr("transform", function(d,i) {
-
-	                	var _x = (Math.random() * nowWidth)/2;
-	                	var _y = (Math.random() * nowHeight)/2;
-
-	                	if (i%2 == 0) {
-	                		_x *= -1; _y *= -1;
-	                	};
-               	
-	                    return "translate(" + [_x, _y] + ")";
-	                })
-	                .style("font-size", function(d) {
-	                    return d.size + "px";
-	                })
-					// .style("font-family", "Yu Gothic")
-	                .style("fill", function(d) {
-	                    return  d3.rgb( d.rgb, d.rgb, d.rgb );
-	                })
-	                .style("opacity", 0.0)
-					.style("text-shadow", function(d){
-						return "2px 2px 0 #888";
-					})
-	                .attr("id", function(d,i){
-	                	return d.id + vidId + i;
-	                })
-	                .on("mouseover", function (d, i){
-	                	if (letterTapFlagTop) {
-
-					    	d3.select(this).transition().duration(40).style({fill:'#000000'}).style("cursor", "pointer");
-						    selectObj = d3.select(this);
-						    originalSize = d.size;
-
-						    if (!hoverToggle) {
-						    		hoverToggle = true;
-									var $letterEffect = Snap( this );
-									$letterEffect.attr( { "font-size": originalSize * 0.8 } );
-
-									$letterEffect.animate( {
-											"font-size": originalSize * 1.0
-										}, 1000, mina.elastic, function () {
-										} );
-									}
-						    }
-
-	                })
-	                .on("mouseout", function (d, i){
-	                	if (letterTapFlagTop) {
-						    d3.select(this).transition().duration(400).style("fill", function(d){
-								return d3.rgb( d.rgb, d.rgb, d.rgb );
-		                	});
-		                	//$letterEffect.remove();
-		                	hoverToggle = false;
-	                	}
-
-	            	})
-	                .on("click", function (d, i){
-	                	if (letterTapFlagTop) {
-
-						    d3.select("#"+ d.text + vidId + i).transition().duration(0).style("fill", function(d){
-								return d3.rgb( d.rgb, d.rgb, d.rgb );
-		                	})
-
-		                	selectedWord = d.text;
-
-		                	vidId = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
-
-		                	var _r = d.rotate * -0.5;
-		                	var _tx = transWidth[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[0];
-		                	var _ty = transHeight[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[1]-100;	                	
-
-		                	d3.select(this.parentNode).transition().duration(1000).delay(1000).attr("transform", function(d) {
-		                    	return "translate(" + _tx + "," + _ty + ")";
-		                	});
-
-		                	//選択した単語以外を非表示にする
-		                	d3.select(this.parentNode).selectAll("text").transition().duration(500).style("opacity", .0);
-		                	d3.select(this).transition().duration(50).style("opacity", 1.0);
-						    d3.select(this).transition().duration(50).style("fill", function(d){
-								return d3.rgb( d.rgb, d.rgb, d.rgb );
-		                	});
-		                	letterTapFlagTop = false;
-
-		                    self.e.publish('show:detail');
-	                	}
-	                });
+			layout1 = d3.layout.cloud()
+				.timeInterval(Infinity)
+				.size([width, height])
+				.fontSize(function (d) {
+					return fontSizeScale(+d.value);
+				})
+				.text(function (d) {
+					return d.key;
+				})
+				.on("end", draw);
+			layout1.font('YuGothic').spiral('archimedean');
 
 
-	        topText.transition()
-	                .duration(function(d,i) {
-	                    return i*500;
-	                })
-	                .style("opacity", function(d) {
-	                    return  "0.4";
-	                })
-	                .text(function(d) {
-	                    return d.text;
-	                });
+			layout2 = d3.layout.cloud()
+				.timeInterval(Infinity)
+				.size([width / 2, height])
+				.fontSize(function (d) {
+					return fontSizeScale(+d.value);
+				})
+				.text(function (d) {
+					return d.key;
+				})
+				.on("end", draw);
+			layout2.font('YuGothic').spiral('archimedean');
 
 
-	        var messageText = vis[0].selectAll("#mtext")
-	                .data(["避難者が今、最も気にかけている言葉は何だろう？"])
-	                .enter().append("text")
-	                .attr("id", "mtext")
-	                .attr("text-anchor", "middle")
-	                .attr("font-weight", "bold")
-	                .attr("transform", function(d,i) {
-	                    return "translate(" + [0, -30] + ")";
-	                })
-	                .style("font-size", "30px")
-					// .style("font-family", "Yu Gothic")
-	                .style("fill", function(d) {
-	                    return  d3.rgb( 0, 0, 0 );
-	                })
-	                .style("opacity", 1.0)
-	                .text(function(d) {
-	                    return d;
-	                });
+			layout3 = d3.layout.cloud()
+				.timeInterval(Infinity)
+				.size([width / 3, height])
+				.fontSize(function (d) {
+					return fontSizeScale(+d.value);
+				})
+				.text(function (d) {
+					return d.key;
+				})
+				.on("end", draw);
+			layout3.font('YuGothic').spiral('archimedean');
 
 
-	        var descText = vis[0].selectAll("#dtext")
-	                .data(["「生活」「町」「家」「原発」。去年、１０００人以上の避難者に行ったアンケートの自由記述欄で使われていた言葉です。","そこには、長引く避難生活の不満や将来への不安など、避難者の生の声が刻まれていました。","自由記述欄で使われた頻度の高い単語を選び出し、「ワードクラウド」と呼ばれる手法で表現しました。","単語のサイズが大きいほど、使用頻度が高いことを示しています。単語をクリックすると、単語に紐づいた避難者の思いを読むことができます。"])
-	                .enter().append("text")
-	                .attr("id", function(d,i) {
-	                	return "dtext" + i;
-	                })
-	                .attr("text-anchor", "middle")
-	                .attr("font-weight", "bold")
-	                .attr("transform", function(d,i) {
-	                	var _v = i * 20 + 10;
-	                    return "translate(" + [0 + ", " + _v] + ")";
-	                })
-	                .style("font-size", "14px")
-					// .style("font-family", "Yu Gothic")
-	                .style("fill", function(d) {
-	                    return  d3.rgb( 51, 51, 51 );
-	                })
-	                .style("opacity", 1.0)
-	                .text(function(d) {
-	                    return d;
-	                });
+			fontSizeScale.domain([10, 255])
+
+			self.e.publish('draw:controll');
+			self.e.publish('draw:whole');
+
+		};
 
 
-	        /*
+		this.drawWhole = function () {
+
+			$("#submenuBlock").animate({ opacity: 'show' }, { duration: 0, easing: 'swing' });
+
+			var _width = widthArray[0];
+			vis[0].attr("width", _width).attr("height", height);
+
+
+			var topText = vis[0].selectAll(".alltext")
+				.data(allOpenText)
+				.enter().append("text")
+				.attr("class", "alltext")
+				.attr("text-anchor", "middle")
+				.attr("transform", function (d, i) {
+
+					var _x = (Math.random() * nowWidth) / 2;
+					var _y = (Math.random() * nowHeight) / 2;
+
+					if (i % 2 == 0) {
+						_x *= -1; _y *= -1;
+					};
+
+					return "translate(" + [_x, _y] + ")";
+				})
+				.style("font-size", function (d) {
+					return d.size + "px";
+				})
+				// .style("font-family", "Yu Gothic")
+				.style("fill", function (d) {
+					return d3.rgb(d.rgb, d.rgb, d.rgb);
+				})
+				.style("opacity", 0.0)
+				.style("text-shadow", function (d) {
+					return "2px 2px 0 #888";
+				})
+				.attr("id", function (d, i) {
+					return d.id + vidId + i;
+				})
+				.on("mouseover", function (d, i) {
+					if (letterTapFlagTop) {
+
+						d3.select(this).transition().duration(40).style({ fill: '#000000' }).style("cursor", "pointer");
+						selectObj = d3.select(this);
+						originalSize = d.size;
+
+						if (!hoverToggle) {
+							hoverToggle = true;
+							var $letterEffect = Snap(this);
+							$letterEffect.attr({ "font-size": originalSize * 0.8 });
+
+							$letterEffect.animate({
+								"font-size": originalSize * 1.0
+							}, 1000, mina.elastic, function () {
+							});
+						}
+					}
+
+				})
+				.on("mouseout", function (d, i) {
+					if (letterTapFlagTop) {
+						d3.select(this).transition().duration(400).style("fill", function (d) {
+							return d3.rgb(d.rgb, d.rgb, d.rgb);
+						});
+						//$letterEffect.remove();
+						hoverToggle = false;
+					}
+
+				})
+				.on("click", function (d, i) {
+					if (letterTapFlagTop) {
+
+						d3.select("#" + d.text + vidId + i).transition().duration(0).style("fill", function (d) {
+							return d3.rgb(d.rgb, d.rgb, d.rgb);
+						})
+
+						selectedWord = d.text;
+
+						vidId = detectSvgNum(d3.select(this.parentNode.parentNode).attr("id"));
+
+						var _r = d.rotate * -0.5;
+						var _tx = transWidth[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[0];
+						var _ty = transHeight[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[1] - 100;
+
+						d3.select(this.parentNode).transition().duration(1000).delay(1000).attr("transform", function (d) {
+							return "translate(" + _tx + "," + _ty + ")";
+						});
+
+						//選択した単語以外を非表示にする
+						d3.select(this.parentNode).selectAll("text").transition().duration(500).style("opacity", .0);
+						d3.select(this).transition().duration(50).style("opacity", 1.0);
+						d3.select(this).transition().duration(50).style("fill", function (d) {
+							return d3.rgb(d.rgb, d.rgb, d.rgb);
+						});
+						letterTapFlagTop = false;
+
+						self.e.publish('show:detail');
+					}
+				});
+
+
+			topText.transition()
+				.duration(function (d, i) {
+					return i * 500;
+				})
+				.style("opacity", function (d) {
+					return "0.4";
+				})
+				.text(function (d) {
+					return d.text;
+				});
+
+
+			var messageText = vis[0].selectAll("#mtext")
+				.data(["避難者が今、最も気にかけている言葉は何だろう？"])
+				.enter().append("text")
+				.attr("id", "mtext")
+				.attr("text-anchor", "middle")
+				.attr("font-weight", "bold")
+				.attr("transform", function (d, i) {
+					return "translate(" + [0, -30] + ")";
+				})
+				.style("font-size", "30px")
+				// .style("font-family", "Yu Gothic")
+				.style("fill", function (d) {
+					return d3.rgb(0, 0, 0);
+				})
+				.style("opacity", 1.0)
+				.text(function (d) {
+					return d;
+				});
+
+
+			var descText = vis[0].selectAll("#dtext")
+				.data(["「生活」「町」「家」「原発」。去年、１０００人以上の避難者に行ったアンケートの自由記述欄で使われていた言葉です。", "そこには、長引く避難生活の不満や将来への不安など、避難者の生の声が刻まれていました。", "自由記述欄で使われた頻度の高い単語を選び出し、「ワードクラウド」と呼ばれる手法で表現しました。", "単語のサイズが大きいほど、使用頻度が高いことを示しています。単語をクリックすると、単語に紐づいた避難者の思いを読むことができます。"])
+				.enter().append("text")
+				.attr("id", function (d, i) {
+					return "dtext" + i;
+				})
+				.attr("text-anchor", "middle")
+				.attr("font-weight", "bold")
+				.attr("transform", function (d, i) {
+					var _v = i * 20 + 10;
+					return "translate(" + [0 + ", " + _v] + ")";
+				})
+				.style("font-size", "14px")
+				// .style("font-family", "Yu Gothic")
+				.style("fill", function (d) {
+					return d3.rgb(51, 51, 51);
+				})
+				.style("opacity", 1.0)
+				.text(function (d) {
+					return d;
+				});
+
+
+			/*
 				make a start button
-	        */
-	        var _btnw = 160, _btnh = 40;
+			*/
+			var _btnw = 160, _btnh = 40;
 
-	        var btnGroup = vis[0].append("svg:g")
-	                .attr("transform", function(d,i) {
-	                	var _x = _btnw / 2 * -1;
-	                	var _y = 100;
-	                    return "translate(" + [_x + ", " + _y] + ")";
-	                });
+			var btnGroup = vis[0].append("svg:g")
+				.attr("transform", function (d, i) {
+					var _x = _btnw / 2 * -1;
+					var _y = 100;
+					return "translate(" + [_x + ", " + _y] + ")";
+				});
 
-	        var btnStart = btnGroup.selectAll("#btnstart")
-	                .data([0])
-	                .enter().append("rect")
-	                .attr("id", function(d,i) {
-	                	return "btnstart";
-	                })
-	                .attr("transform", function(d,i) {
-	                    return "translate(" + [0, 0] + ")";
-	                })
-	                .attr({
-	                	width: _btnw,
-	                	height: _btnh,
-	                	fill: "#333333"
-	                })
-	                .on("mouseover", function (d, i){
-					    	d3.select(this).transition().duration(1000).style({fill:'#FFFFFF'}).style("cursor", "pointer");
-					    	btnStartText.transition().duration(1000).style({fill:'#000'});
+			var btnStart = btnGroup.selectAll("#btnstart")
+				.data([0])
+				.enter().append("rect")
+				.attr("id", function (d, i) {
+					return "btnstart";
+				})
+				.attr("transform", function (d, i) {
+					return "translate(" + [0, 0] + ")";
+				})
+				.attr({
+					width: _btnw,
+					height: _btnh,
+					fill: "#333333"
+				})
+				.on("mouseover", function (d, i) {
+					d3.select(this).transition().duration(1000).style({ fill: '#FFFFFF' }).style("cursor", "pointer");
+					btnStartText.transition().duration(1000).style({ fill: '#000' });
 
-						    if (!btnHoverToggle) {
-						    		btnHoverToggle = true;
-									var $box = Snap( this );
-									$box.attr( {
-											"transform": "scale(0.8, 0.8, 0, 0)"
-										});
-									$box.animate( {
-											"transform": "scale(1.6, 1.6, 0, 0)"
-										}, 1000, mina.elastic, function () {
-										} );
-						    }
-	                })
-	                .on("mouseout", function (d, i){
-					    	d3.select(this).transition().duration(400).style({fill:'#333333'});
-					    	btnStartText.transition().duration(1000).style({fill:'#FFF'});
+					if (!btnHoverToggle) {
+						btnHoverToggle = true;
+						var $box = Snap(this);
+						$box.attr({
+							"transform": "scale(0.8, 0.8, 0, 0)"
+						});
+						$box.animate({
+							"transform": "scale(1.6, 1.6, 0, 0)"
+						}, 1000, mina.elastic, function () {
+						});
+					}
+				})
+				.on("mouseout", function (d, i) {
+					d3.select(this).transition().duration(400).style({ fill: '#333333' });
+					btnStartText.transition().duration(1000).style({ fill: '#FFF' });
 
-							var $box = Snap( this );
-							$box.animate( {
-									"transform": "scale(1.0, 1.0, 0, 0)"
-										}, 500, mina.elastic);
-						   	btnHoverToggle = false;
-	                })
-	                .on("click", function (d, i){
+					var $box = Snap(this);
+					$box.animate({
+						"transform": "scale(1.0, 1.0, 0, 0)"
+					}, 500, mina.elastic);
+					btnHoverToggle = false;
+				})
+				.on("click", function (d, i) {
 
-	                		hoverToggle = true;
+					hoverToggle = true;
 
-	                		$("#mtext").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'} );
+					$("#mtext").animate({ opacity: 'hide' }, { duration: 1000, easing: 'swing' });
 
-	                		$("#dtext0").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 0} );
-	                		$("#dtext1").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 1000} );
-	                		$("#dtext2").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 2000} );
-	                		$("#dtext3").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 3000} );
+					$("#dtext0").animate({ opacity: 'hide' }, { duration: 1000, easing: 'swing' }, { delay: 0 });
+					$("#dtext1").animate({ opacity: 'hide' }, { duration: 1000, easing: 'swing' }, { delay: 1000 });
+					$("#dtext2").animate({ opacity: 'hide' }, { duration: 1000, easing: 'swing' }, { delay: 2000 });
+					$("#dtext3").animate({ opacity: 'hide' }, { duration: 1000, easing: 'swing' }, { delay: 3000 });
 
-	                		$("#btnstart").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 500} );
-	                		$("#btnstarttext").animate( { opacity: 'hide'}, { duration: 1000, easing: 'swing'}, { delay: 500} );
+					$("#btnstart").animate({ opacity: 'hide' }, { duration: 1000, easing: 'swing' }, { delay: 500 });
+					$("#btnstarttext").animate({ opacity: 'hide' }, { duration: 1000, easing: 'swing' }, { delay: 500 });
 
-	                		$(".alltext").animate( { opacity: 1.0}, { duration: 2000, easing: 'swing'} );
+					$(".alltext").animate({ opacity: 1.0 }, { duration: 2000, easing: 'swing' });
 
-	                		d3.timer( startHover(), 2000 );
+					d3.timer(startHover(), 2000);
 
-	                		d3.selectAll(".alltext").transition().duration(2000).attr("transform", function(d,i) {
-	                    			return "translate(" + [d.translate0, d.translate1] + ")rotate(" + d.rotate + ")";
-	                		});
-	                });
+					d3.selectAll(".alltext").transition().duration(2000).attr("transform", function (d, i) {
+						return "translate(" + [d.translate0, d.translate1] + ")rotate(" + d.rotate + ")";
+					});
+				});
 
-	        var btnStartText = btnGroup.selectAll("#btnstarttext")
-	                .data([0])
-	                .enter().append("text")
-	                .attr("id", function(d,i) {
-	                	return "btnstarttext";
-	                })
-	                .attr("transform", function(d,i) {
-	                	var _x = _btnw / 2;
-	                	var _y = _btnh / 2 + _btnh / 8;
-	                    return "translate(" + [_x + ", " + _y] + ")";
-	                })
-	                .attr("pointer-events", "none")
-	                .attr("text-anchor", "middle")
-	                .attr("font-weight", "bold")
-	                .style("font-size", "14px")
-					// .style("font-family", "Yu Gothic")
-	                .style("fill", "#FFF")
-	                .style("opacity", 1.0)
-	                .text(function(d) {
-	                    return "開始する";
-	                });
+			var btnStartText = btnGroup.selectAll("#btnstarttext")
+				.data([0])
+				.enter().append("text")
+				.attr("id", function (d, i) {
+					return "btnstarttext";
+				})
+				.attr("transform", function (d, i) {
+					var _x = _btnw / 2;
+					var _y = _btnh / 2 + _btnh / 8;
+					return "translate(" + [_x + ", " + _y] + ")";
+				})
+				.attr("pointer-events", "none")
+				.attr("text-anchor", "middle")
+				.attr("font-weight", "bold")
+				.style("font-size", "14px")
+				// .style("font-family", "Yu Gothic")
+				.style("fill", "#FFF")
+				.style("opacity", 1.0)
+				.text(function (d) {
+					return "開始する";
+				});
 
-			if (container.width()<481) {
+			if (container.width() < 481) {
 				dialogMobile();
 			}
 
-	    };
+		};
 
 
-		var startHover = function() {
+		var startHover = function () {
 
-		    return function() {
+			return function () {
 				letterTapFlagTop = true;
-		        return true;
-		    }
+				return true;
+			}
 		};
 
 
 
-	    this.drawControll = function() {
+		this.drawControll = function () {
 
-	    	if (vid == 0) {
-	        	layout1.stop().words( tags[vid] ).start();
-	    	} else if ((vid == 7) || (vid == 8)) {
-	        	layout2.stop().words( tags[vid] ).start();
-	    	} else {
-	        	layout3.stop().words( tags[vid] ).start();	
-	    	}
+			if (vid == 0) {
+				layout1.stop().words(tags[vid]).start();
+			} else if ((vid == 7) || (vid == 8)) {
+				layout2.stop().words(tags[vid]).start();
+			} else {
+				layout3.stop().words(tags[vid]).start();
+			}
 
-	    };
+		};
 
-	    function detectSvgNum(_string) {
+		function detectSvgNum(_string) {
 
-	    	return parseInt( _string.substr(9, 1) );
-	    }
+			return parseInt(_string.substr(9, 1));
+		}
 
 
-	    function draw(data, bounds) {
+		function draw(data, bounds) {
 
-	    	var _width = widthArray[vid];
+			var _width = widthArray[vid];
 
-	        vis[vid].attr("width", _width).attr("height", height);
+			vis[vid].attr("width", _width).attr("height", height);
 
-	        _scale = bounds ? Math.min(
-	                _width / Math.abs(bounds[1].x - _width / 2),
-	                _width / Math.abs(bounds[0].x - _width / 2),
-	                height / Math.abs(bounds[1].y - height / 2),
-	                height / Math.abs(bounds[0].y - height / 2)) / 2 : 1;
+			var _scale = bounds ? Math.min(
+				_width / Math.abs(bounds[1].x - _width / 2),
+				_width / Math.abs(bounds[0].x - _width / 2),
+				height / Math.abs(bounds[1].y - height / 2),
+				height / Math.abs(bounds[0].y - height / 2)) / 2 : 1;
 
-	        var text = vis[vid].selectAll("text")
-	                .data(data, function(d) {
-	                    return d.text.toLowerCase();
-	                });
-	                
-	        text.transition()
-	                .duration(1000)
-	                .attr("transform", function(d) {
-	                    return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-	                })
-	                .style("font-size", function(d) {
-	                    return d.size + "px";
-	                });
+			var text = vis[vid].selectAll("text")
+				.data(data, function (d) {
+					return d.text.toLowerCase();
+				});
 
-	        text.enter().append("text")
-	                .attr("text-anchor", "middle")
-	                .attr("transform", function(d) {
-	                    return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-	                })
-	                .style("font-size", function(d) {
-	                    return d.size + "px";
-	                })
-	                .transition()
-	                .duration(1000);
+			text.transition()
+				.duration(1000)
+				.attr("transform", function (d) {
+					return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+				})
+				.style("font-size", function (d) {
+					return d.size + "px";
+				});
 
-	            text.style("fill", function(d,i) {
-	                    return grayScale( +d.value );
-	                })
-	                .style("opacity", 1.0)
-					.style("text-shadow", function(d){
-						return "1px 1px 0 #888";
-					})
-	                .attr("class", "onetext")
-	                .attr("id", function(d,i){
-	                	return d.text + vid + i;
-	                })
-	                .text(function(d) {
-	                    return d.text;
-	                })
-	                .on("mouseover", function (d, i){
-	                	if (letterTapFlag) {
-			                	var _v = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
-							    d3.select("#"+ d.text + _v + i).transition().duration(40).style({fill:'#000000'}).style("cursor", "pointer");
+			text.enter().append("text")
+				.attr("text-anchor", "middle")
+				.attr("transform", function (d) {
+					return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+				})
+				.style("font-size", function (d) {
+					return d.size + "px";
+				})
+				.transition()
+				.duration(1000);
 
-							    selectObj = d3.select("#"+ d.text + _v + i);
-							    originalSize = d.size;
-							    if (!hoverToggle) {
-							    		hoverToggle = true;
-										var $circle = Snap( this );
-										$circle.attr( { "font-size": originalSize * 0.8 } );
+			text.style("fill", function (d, i) {
+				return grayScale(+d.value);
+			})
+				.style("opacity", 1.0)
+				.style("text-shadow", function (d) {
+					return "1px 1px 0 #888";
+				})
+				.attr("class", "onetext")
+				.attr("id", function (d, i) {
+					return d.text + vid + i;
+				})
+				.text(function (d) {
+					return d.text;
+				})
+				.on("mouseover", function (d, i) {
+					if (letterTapFlag) {
+						var _v = detectSvgNum(d3.select(this.parentNode.parentNode).attr("id"));
+						d3.select("#" + d.text + _v + i).transition().duration(40).style({ fill: '#000000' }).style("cursor", "pointer");
 
-										$circle.animate( {
-												"font-size": originalSize * 1.0
-											}, 1000, mina.elastic, function () {
+						selectObj = d3.select("#" + d.text + _v + i);
+						originalSize = d.size;
+						if (!hoverToggle) {
+							hoverToggle = true;
+							var $circle = Snap(this);
+							$circle.attr({ "font-size": originalSize * 0.8 });
 
-											} );
-							    }
-						}							    
+							$circle.animate({
+								"font-size": originalSize * 1.0
+							}, 1000, mina.elastic, function () {
 
-	                })
-	                .on("mouseout", function (d, i){
-	                	if (letterTapFlag) {
-			                	var _v = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
+							});
+						}
+					}
 
-							    d3.select("#"+ d.text + _v + i).transition().duration(400).style("fill", function(d){
-									return grayScale( +d.value );
-			                	});
-			                	hoverToggle = false;
+				})
+				.on("mouseout", function (d, i) {
+					if (letterTapFlag) {
+						var _v = detectSvgNum(d3.select(this.parentNode.parentNode).attr("id"));
+
+						d3.select("#" + d.text + _v + i).transition().duration(400).style("fill", function (d) {
+							return grayScale(+d.value);
+						});
+						hoverToggle = false;
+					}
+
+				})
+				.on("click", function (d, i) {
+					if (letterTapFlag) {
+
+						letterTapFlag = false;
+
+						var _v = detectSvgNum(d3.select(this.parentNode.parentNode).attr("id"));
+
+						d3.select("#" + d.text + _v + i).transition().duration(0).style("fill", function (d) {
+							return grayScale(+d.value);
+						})
+
+						selectedWord = d.text;
+
+						vidId = detectSvgNum(d3.select(this.parentNode.parentNode).attr("id"));
+
+						var _r = d.rotate * -0.5;
+						var _tx = transWidth[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[0];
+						var _ty = transHeight[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[1] - 100;
+
+						d3.select(this.parentNode).transition().duration(1000).delay(1000).attr("transform", function (d) {
+							return "translate(" + _tx + "," + _ty + ")";
+						});
+
+						//選択した単語以外を非表示にする
+						d3.select(this.parentNode).selectAll("text").transition().duration(500).style("opacity", .0);
+						d3.select(this).transition().duration(50).style("opacity", 1.0);
+						d3.select(this).transition().duration(50).style("fill", function (d) {
+							return grayScale(+d.value);
+						});
+
+						switch (vidId) {
+							case 0:
+								break;
+
+
+							case 1:
+								d3.select("#chartArea2").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea3").transition().duration(100).style("opacity", 0.0);
+								break;
+							case 2:
+								d3.select("#chartArea1").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea3").transition().duration(100).style("opacity", 0.0);
+								break;
+							case 3:
+								d3.select("#chartArea1").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea2").transition().duration(100).style("opacity", 0.0);
+								break;
+
+
+							case 4:
+								d3.select("#chartArea5").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea6").transition().duration(100).style("opacity", 0.0);
+								break;
+							case 5:
+								d3.select("#chartArea4").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea6").transition().duration(100).style("opacity", 0.0);
+								break;
+							case 6:
+								d3.select("#chartArea4").transition().duration(100).style("opacity", 0.0);
+								d3.select("#chartArea5").transition().duration(100).style("opacity", 0.0);
+								break;
+
+
+							case 7:
+								d3.select("#chartArea8").transition().duration(100).style("opacity", 0.0);
+								break;
+							case 8:
+								d3.select("#chartArea7").transition().duration(100).style("opacity", 0.0);
+								break;
 						}
 
-	            	})
-	                .on("click", function (d, i){
-	                	if (letterTapFlag) {
+						self.e.publish('show:detail');
+					}
+				});
 
-	                			letterTapFlag = false;
-
-			                	var _v = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
-
-							    d3.select("#"+ d.text + _v + i).transition().duration(0).style("fill", function(d){
-									return grayScale( +d.value );
-			                	})
-
-			                	selectedWord = d.text;
-
-				                vidId = detectSvgNum( d3.select(this.parentNode.parentNode).attr("id") );
-
-			                	var _r = d.rotate * -0.5;
-			                	var _tx = transWidth[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[0];
-			                	var _ty = transHeight[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[1]-100;	                	
-
-			                	d3.select(this.parentNode).transition().duration(1000).delay(1000).attr("transform", function(d) {
-			                    	return "translate(" + _tx + "," + _ty + ")";
-			                	});
-
-			                	//選択した単語以外を非表示にする
-			                	d3.select(this.parentNode).selectAll("text").transition().duration(500).style("opacity", .0);
-			                	d3.select(this).transition().duration(50).style("opacity", 1.0);
-							    d3.select(this).transition().duration(50).style("fill", function(d){
-									return grayScale( +d.value );
-			                	});
-
-								switch (vidId) {
-									case 0:
-									  break;
+			vid++;
+			if (vid < 9) {
+				self.e.publish('draw:controll');
+			} else {
+				self.e.publish('draw:about');
+			}
+		}
 
 
-									case 1:
-										d3.select("#chartArea2").transition().duration(100).style("opacity", 0.0);
-										d3.select("#chartArea3").transition().duration(100).style("opacity", 0.0);
-									  break;
-									case 2:
-										d3.select("#chartArea1").transition().duration(100).style("opacity", 0.0);
-										d3.select("#chartArea3").transition().duration(100).style("opacity", 0.0);
-									  break;
-									case 3:
-										d3.select("#chartArea1").transition().duration(100).style("opacity", 0.0);
-										d3.select("#chartArea2").transition().duration(100).style("opacity", 0.0);
-									  break;
+		this.showDetail = function () {
+
+			if (currentNum == 0) {
+
+				var wholeVoice = "";
 
 
-									case 4:
-										d3.select("#chartArea5").transition().duration(100).style("opacity", 0.0);
-										d3.select("#chartArea6").transition().duration(100).style("opacity", 0.0);
-									  break;
-									case 5:
-										d3.select("#chartArea4").transition().duration(100).style("opacity", 0.0);
-										d3.select("#chartArea6").transition().duration(100).style("opacity", 0.0);
-									  break;
-									case 6:
-										d3.select("#chartArea4").transition().duration(100).style("opacity", 0.0);
-										d3.select("#chartArea5").transition().duration(100).style("opacity", 0.0);
-									  break;
+				for (var j = 1; j < 9; j++) {
 
+					var _age = "", _sex = "", _area = "", _keyword = "", _expression = "";
 
-									case 7:
-										d3.select("#chartArea8").transition().duration(100).style("opacity", 0.0);
-									  break;
-									case 8:
-										d3.select("#chartArea7").transition().duration(100).style("opacity", 0.0);
-									  break;
-								}
+					for (var i = 0; i < detailWordsArray[j].length; i++) {
+						if (detailWordsArray[j][i]["keyword"] == selectedWord) {
+							_age = detailWordsArray[j][i]["age"];
+							_sex = detailWordsArray[j][i]["sex"];
+							_area = parseInt(detailWordsArray[j][i]["area"]);
+							_keyword = detailWordsArray[j][i]["keyword"];
+							_expression = detailWordsArray[j][i]["expression"];
+						}
+					};
 
-			                    self.e.publish('show:detail');
-			            }
-	                });
+					if (!_age == "") {
 
-	        vid++;
-	        if (vid<9) {
-	            self.e.publish('draw:controll');
-	        } else {
-	            self.e.publish('draw:about');
-	        }
-	    }
+						var _areatext;
 
+						switch (_area) {
+							case 0:
+								_areatext = "";
+								break;
+							case 1:
+								_areatext = "帰還困難区域";
+								break;
+							case 2:
+								_areatext = "帰還困難区域";
+								break;
+							case 3:
+								_areatext = "居住制限区域";
+								break;
+							case 4:
+								_areatext = "避難指示解除準備区域";
+								break;
+							default:
+								_areatext = "";
+								break;
+						}
 
-	    this.showDetail = function() {
+						if (_age != "") {
+							_age += '歳 ';
+						}
 
-	    	if (currentNum == 0){
-
-	    		var wholeVoice = "";
-
-
-	    		for (var j=1; j<9; j++) {
-
-	    				var _age="", _sex="", _area="", _keyword="", _expression="";
-
-			    		for (var i=0; i<detailWordsArray[j].length; i++) {
-				    		if (detailWordsArray[j][i]["keyword"] == selectedWord) {
-				    			_age 		= detailWordsArray[j][i]["age"];
-				    			_sex 		= detailWordsArray[j][i]["sex"];
-				    			_area 		= parseInt( detailWordsArray[j][i]["area"] );
-				    			_keyword	= detailWordsArray[j][i]["keyword"];	
-				    			_expression = detailWordsArray[j][i]["expression"];	    				    			
-				    		}
-				    	};
-
-				    	if (!_age=="") {
-
-						    	var _areatext;
-
-								switch (_area) {
-									case 0:
-									  _areatext = "";
-									  break;
-									case 1:
-									  _areatext = "帰還困難区域";
-									  break;
-									case 2:
-									  _areatext = "帰還困難区域";
-									  break;
-									case 3:
-									  _areatext = "居住制限区域";
-									  break;
-									case 4:
-									  _areatext = "避難指示解除準備区域";
-									  break;
-									default:
-									  _areatext = "";
-									  break;
-								}
-
-								if (_age != "") {
-									_age += '歳 ';
-								}
-
-								wholeVoice = wholeVoice + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>' + '<div class="attr area">' + _expression + '</div>';
-				    	}
+						wholeVoice = wholeVoice + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>' + '<div class="attr area">' + _expression + '</div>';
+					}
 
 				}
 
@@ -893,117 +821,117 @@ $(function(){
 				//例外処理
 				if (wholeVoice == "") {
 
-	    				var _age="", _sex="", _area="", _keyword="", _expression="";
+					var _age = "", _sex = "", _area = "", _keyword = "", _expression = "";
 
-			    		for (var k=0; k<detailWordsArray[0].length; k++) {
+					for (var k = 0; k < detailWordsArray[0].length; k++) {
 
-				    		if (detailWordsArray[0][k]["keyword"] == selectedWord) {
-				    			_age 		= detailWordsArray[0][k]["age"];
-				    			_sex 		= detailWordsArray[0][k]["sex"];
-				    			_area 		= parseInt( detailWordsArray[0][k]["area"] );
-				    			_keyword	= detailWordsArray[0][k]["keyword"];	
-				    			_expression = detailWordsArray[0][k]["expression"];
+						if (detailWordsArray[0][k]["keyword"] == selectedWord) {
+							_age = detailWordsArray[0][k]["age"];
+							_sex = detailWordsArray[0][k]["sex"];
+							_area = parseInt(detailWordsArray[0][k]["area"]);
+							_keyword = detailWordsArray[0][k]["keyword"];
+							_expression = detailWordsArray[0][k]["expression"];
 
-								    	var _areatext;
+							var _areatext;
 
-										switch (_area) {
-											case 0:
-											  _areatext = "";
-											  break;
-											case 1:
-											  _areatext = "帰還困難区域";
-											  break;
-											case 2:
-											  _areatext = "帰還困難区域";
-											  break;
-											case 3:
-											  _areatext = "居住制限区域";
-											  break;
-											case 4:
-											  _areatext = "避難指示解除準備区域";
-											  break;
-											default:
-											  _areatext = "";
-											  break;
-										}
+							switch (_area) {
+								case 0:
+									_areatext = "";
+									break;
+								case 1:
+									_areatext = "帰還困難区域";
+									break;
+								case 2:
+									_areatext = "帰還困難区域";
+									break;
+								case 3:
+									_areatext = "居住制限区域";
+									break;
+								case 4:
+									_areatext = "避難指示解除準備区域";
+									break;
+								default:
+									_areatext = "";
+									break;
+							}
 
-										if (_age != "") {
-											_age += '歳 ';
-										}
+							if (_age != "") {
+								_age += '歳 ';
+							}
 
-										wholeVoice = wholeVoice + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>' + '<div class="attr area">' + _expression + '</div>';
+							wholeVoice = wholeVoice + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>' + '<div class="attr area">' + _expression + '</div>';
 
-				    		}
-				    	};
+						}
+					};
 				}
 
 
-			    var options = {
-			        title : '避難者の声',
-			        content : wholeVoice,
-			        buttons : [{
-			            label: '閉じる'
-			        }]
-			    };
+				var options = {
+					title: '避難者の声',
+					content: wholeVoice,
+					buttons: [{
+						label: '閉じる'
+					}]
+				};
 
-			    var zdal = new ZMODAL(options);
+				var zdal = new ZMODAL(options);
 
 				d3.select('.z-modal-box').style("top", "50%");
 
-	    	} else {
+			} else {
 
-	    		for (var i=0; i<detailWordsArray[vidId].length; i++) {
-		    		if (detailWordsArray[vidId][i]["keyword"] == selectedWord) {
-		    			var _age 		= detailWordsArray[vidId][i]["age"];
-		    			var _sex 		= detailWordsArray[vidId][i]["sex"];
-		    			var _area 		= parseInt( detailWordsArray[vidId][i]["area"] );
-		    			var _keyword	= detailWordsArray[vidId][i]["keyword"];	
-		    			var _expression = detailWordsArray[vidId][i]["expression"];	    				    			
-		    		}
-		    	};
+				for (var i = 0; i < detailWordsArray[vidId].length; i++) {
+					if (detailWordsArray[vidId][i]["keyword"] == selectedWord) {
+						var _age = detailWordsArray[vidId][i]["age"];
+						var _sex = detailWordsArray[vidId][i]["sex"];
+						var _area = parseInt(detailWordsArray[vidId][i]["area"]);
+						var _keyword = detailWordsArray[vidId][i]["keyword"];
+						var _expression = detailWordsArray[vidId][i]["expression"];
+					}
+				};
 
-		    	var _areatext;
+				var _areatext;
 
 				switch (_area) {
 					case 0:
-					  _areatext = "";
-					  break;
+						_areatext = "";
+						break;
 					case 1:
-					  _areatext = "帰還困難区域";
-					  break;
+						_areatext = "帰還困難区域";
+						break;
 					case 2:
-					  _areatext = "帰還困難区域";
-					  break;
+						_areatext = "帰還困難区域";
+						break;
 					case 3:
-					  _areatext = "居住制限区域";
-					  break;
+						_areatext = "居住制限区域";
+						break;
 					case 4:
-					  _areatext = "避難指示解除準備区域";
-					  break;
+						_areatext = "避難指示解除準備区域";
+						break;
 					default:
-					  _areatext = "";
-					  break;
+						_areatext = "";
+						break;
 				}
 
 				if (_age != "") {
 					_age += '歳 ';
 				}
 
-			    var options = {
-			        title : '避難者の声' + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>',
-			        content : '<div class="attr area">' + _expression + '</div>',
-			        buttons : [{
-			            label: '閉じる'
-			        }]
-			    };
+				var options = {
+					title: '避難者の声' + '<div class="attr age">' + _sex + ' ' + _age + _areatext + '</div>',
+					content: '<div class="attr area">' + _expression + '</div>',
+					buttons: [{
+						label: '閉じる'
+					}]
+				};
 
-			    var zdal = new ZMODAL(options);
+				var zdal = new ZMODAL(options);
 
 				d3.select('.z-modal-box').style("top", "60%");
-	    	}
+			}
 
 
-	    };
+		};
 
 
 		/* ---------------
@@ -1011,60 +939,60 @@ $(function(){
 		--------------- */
 
 		var menuItems = d3.select("#radioBlock").append('form').selectAll("span")
-		    .data( ["全体", "年齢別", "避難区域別", "性別"] )
-		    .enter().append("span").attr("class", "navColumn");
+			.data(["全体", "年齢別", "避難区域別", "性別"])
+			.enter().append("span").attr("class", "navColumn");
 
 		menuItems.append("input")
-		    .attr({
-		        type: "radio",
-		        class: "nav",
-		        name: "nav",
-		        value: function(d, i) {return i;}
-		    })
-			.attr('id', function(d, i) {
+			.attr({
+				type: "radio",
+				class: "nav",
+				name: "nav",
+				value: function (d, i) { return i; }
+			})
+			.attr('id', function (d, i) {
 				return "id" + i;
 			})
-			.attr('value', function(d, i) {
+			.attr('value', function (d, i) {
 				return d;
 			})
-		    .property("checked", function(d, i) {
-			    if (i === prevNum) { return true; } else { return false; };
-		    })
-			.on("change", function(d,i){
+			.property("checked", function (d, i) {
+				if (i === prevNum) { return true; } else { return false; };
+			})
+			.on("change", function (d, i) {
 				prevNum = currentNum;
-		      	currentNum = i;
+				currentNum = i;
 				resizeSVG();
 				self.e.publish('container:disappear');
-		});
+			});
 
 
 		menuItems.append("label")
-			.attr('for', function(d, i) {
+			.attr('for', function (d, i) {
 				return "id" + i;
 			})
-		    .attr({
-		        class: "btn"
-		    })
-			.text(function(d,i) {
+			.attr({
+				class: "btn"
+			})
+			.text(function (d, i) {
 				return d;
 			});
 
 
-		this.disappearContainer = function() {
+		this.disappearContainer = function () {
 
-			$("#container" + prevNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
-			$("#submenu" + prevNum).animate( { opacity: 'hide'}, { duration: 0, easing: 'swing'} );
+			$("#container" + prevNum).animate({ opacity: 'hide' }, { duration: 0, easing: 'swing' });
+			$("#submenu" + prevNum).animate({ opacity: 'hide' }, { duration: 0, easing: 'swing' });
 			self.e.publish('container:appear');
 
 		}
 
 
-		this.appearContainer = function() {
+		this.appearContainer = function () {
 
-			$("#container" + currentNum).animate( { opacity: 'show'}, { duration: 1000, easing: 'swing'} );
-			$("#submenu" + currentNum).animate( { opacity: 'show'}, { duration: 1000, easing: 'swing'} );
+			$("#container" + currentNum).animate({ opacity: 'show' }, { duration: 1000, easing: 'swing' });
+			$("#submenu" + currentNum).animate({ opacity: 'show' }, { duration: 1000, easing: 'swing' });
 
-			if ((currentNum == 0) && (container.width()<481)) {
+			if ((currentNum == 0) && (container.width() < 481)) {
 				dialogMobile();
 			}
 		}
@@ -1074,95 +1002,95 @@ $(function(){
 
 		function dialogMobile() {
 
-		    var options = {
-		        title : 'スマートフォンをご利用の方',
-		        content : '横向きでの閲覧をおすすめいたします。',
-		        buttons : [{
-		            label: '閉じる'
-		        }]
-		    };
+			var options = {
+				title: 'スマートフォンをご利用の方',
+				content: '横向きでの閲覧をおすすめいたします。',
+				buttons: [{
+					label: '閉じる'
+				}]
+			};
 
-		    var zdal = new ZMODAL(options);
+			var zdal = new ZMODAL(options);
 			d3.select('.z-modal-box').style("top", "50%");
 
 		};
 
 
-		this.opacityFull = function() {
+		this.opacityFull = function () {
 
 			if (aboutFlg == "open") {
 
-					$("#aboutLink").animate( { opacity: 'show'}, { duration: 0, easing: 'swing'} );
-					aboutFlg = "close";
+				$("#aboutLink").animate({ opacity: 'show' }, { duration: 0, easing: 'swing' });
+				aboutFlg = "close";
 
 			} else if (aboutFlg == "close") {
 
-					/*
-					area appear
-					*/
-					switch (vidId) {
-						case 0:
-						  break;
+				/*
+				area appear
+				*/
+				switch (vidId) {
+					case 0:
+						break;
 
 
-						case 1:
-							d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
-							d3.select("#chartArea3").transition().duration(100).style("opacity", 1.0);
+					case 1:
+						d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
+						d3.select("#chartArea3").transition().duration(100).style("opacity", 1.0);
 
-						  break;
-						case 2:
-							d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
-							d3.select("#chartArea3").transition().duration(100).style("opacity", 1.0);
-						  break;
-						case 3:
-							d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
-							d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
-						  break;
-
-
-						case 4:
-							d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
-							d3.select("#chartArea6").transition().duration(100).style("opacity", 1.0);
-						  break;
-						case 5:
-							d3.select("#chartArea4").transition().duration(100).style("opacity", 1.0);
-							d3.select("#chartArea6").transition().duration(100).style("opacity", 1.0);
-						  break;
-						case 6:
-							d3.select("#chartArea4").transition().duration(100).style("opacity", 1.0);
-							d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
-						  break;
+						break;
+					case 2:
+						d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
+						d3.select("#chartArea3").transition().duration(100).style("opacity", 1.0);
+						break;
+					case 3:
+						d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
+						d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
+						break;
 
 
-						case 7:
-							d3.select("#chartArea8").transition().duration(100).style("opacity", 1.0);
-						  break;
-						case 8:
-							d3.select("#chartArea7").transition().duration(100).style("opacity", 1.0);
-						  break;
-					}
+					case 4:
+						d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
+						d3.select("#chartArea6").transition().duration(100).style("opacity", 1.0);
+						break;
+					case 5:
+						d3.select("#chartArea4").transition().duration(100).style("opacity", 1.0);
+						d3.select("#chartArea6").transition().duration(100).style("opacity", 1.0);
+						break;
+					case 6:
+						d3.select("#chartArea4").transition().duration(100).style("opacity", 1.0);
+						d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
+						break;
 
-					/*
-					letter appear
-					*/
-					vis[vidId].selectAll("text").transition().duration(1000).style("opacity", 1.0);
-			                	
-		        	vis[vidId].transition().duration(1000).delay(0).attr("transform", function(d) {
-		            	return "translate(" + transWidth[vidId] + "," + transHeight[vidId] + ")";
-		        	});
-		        	
-		        	if (vidId==0) {
-		        		letterTapFlagTop = true;
-		        	} else {
-		        		letterTapFlag = true;
-		        	}
+
+					case 7:
+						d3.select("#chartArea8").transition().duration(100).style("opacity", 1.0);
+						break;
+					case 8:
+						d3.select("#chartArea7").transition().duration(100).style("opacity", 1.0);
+						break;
+				}
+
+				/*
+				letter appear
+				*/
+				vis[vidId].selectAll("text").transition().duration(1000).style("opacity", 1.0);
+
+				vis[vidId].transition().duration(1000).delay(0).attr("transform", function (d) {
+					return "translate(" + transWidth[vidId] + "," + transHeight[vidId] + ")";
+				});
+
+				if (vidId == 0) {
+					letterTapFlagTop = true;
+				} else {
+					letterTapFlag = true;
+				}
 
 
 			}
 
 		}
 
-		this.init.apply( this, arguments );
+		this.init.apply(this, arguments);
 	};
 
 
@@ -1185,44 +1113,44 @@ $(function(){
 
 	function resizeSVG() {
 
-	    var targetWidth = container.width();
-	    nowWidth = targetWidth;
-	    nowHeight = Math.round(targetWidth / aspect);
+		var targetWidth = container.width();
+		nowWidth = targetWidth;
+		nowHeight = Math.round(targetWidth / aspect);
 
 		switch (currentNum) {
 			case 0:
-			    chart0.attr("width", nowWidth); chart0.attr("height", nowHeight);
+				chart0.attr("width", nowWidth); chart0.attr("height", nowHeight);
 				$("#container0").height(nowHeight);
 				$("#svgcontainer0").height(nowHeight);
-			break;
+				break;
 
 			case 1:
-			    chart1.attr("width", Math.floor(nowWidth/3) ); chart1.attr("height", nowHeight);
-			    chart2.attr("width", Math.floor(nowWidth/3) ); chart2.attr("height", nowHeight);
-			    chart3.attr("width", Math.floor(nowWidth/3) ); chart3.attr("height", nowHeight);
+				chart1.attr("width", Math.floor(nowWidth / 3)); chart1.attr("height", nowHeight);
+				chart2.attr("width", Math.floor(nowWidth / 3)); chart2.attr("height", nowHeight);
+				chart3.attr("width", Math.floor(nowWidth / 3)); chart3.attr("height", nowHeight);
 				$("#container1").height(nowHeight);
 				$("#svgcontainer1").height(nowHeight);
 				$("#svgcontainer2").height(nowHeight);
 				$("#svgcontainer3").height(nowHeight);
-			  break;
+				break;
 
 			case 2:
-			    chart4.attr("width", Math.floor(nowWidth/3) ); chart4.attr("height", nowHeight);
-			    chart5.attr("width", Math.floor(nowWidth/3) ); chart5.attr("height", nowHeight);
-			    chart6.attr("width", Math.floor(nowWidth/3) ); chart6.attr("height", nowHeight);
+				chart4.attr("width", Math.floor(nowWidth / 3)); chart4.attr("height", nowHeight);
+				chart5.attr("width", Math.floor(nowWidth / 3)); chart5.attr("height", nowHeight);
+				chart6.attr("width", Math.floor(nowWidth / 3)); chart6.attr("height", nowHeight);
 				$("#container2").height(nowHeight);
 				$("#svgcontainer4").height(nowHeight);
 				$("#svgcontainer5").height(nowHeight);
 				$("#svgcontainer6").height(nowHeight);
-			  break;
+				break;
 
 			case 3:
-			    chart7.attr("width", Math.floor(nowWidth/2) ); chart7.attr("height", nowHeight);
-			    chart8.attr("width", Math.floor(nowWidth/2) ); chart8.attr("height", nowHeight);
+				chart7.attr("width", Math.floor(nowWidth / 2)); chart7.attr("height", nowHeight);
+				chart8.attr("width", Math.floor(nowWidth / 2)); chart8.attr("height", nowHeight);
 				$("#container3").height(nowHeight);
 				$("#svgcontainer7").height(nowHeight);
 				$("#svgcontainer8").height(nowHeight);
-			  break;
+				break;
 		}
 
 		$("#description").width(nowWidth);
@@ -1233,8 +1161,8 @@ $(function(){
 	}
 
 
-	$(window).on("resize", function() {
-			resizeSVG();
+	$(window).on("resize", function () {
+		resizeSVG();
 	}).trigger("resize");
 
 
@@ -1245,6 +1173,6 @@ var gg;
 
 //モーダルウインドウを閉じたら
 function closeDetailBtn() {
-		delete zdal;
-		gg.opacityFull();
+	// delete zdal;
+	gg.opacityFull();
 }
