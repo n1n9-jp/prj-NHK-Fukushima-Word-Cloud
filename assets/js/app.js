@@ -1,4 +1,6 @@
 import Eventer from './src/Eventer.js';
+import DataLoader from './src/DataLoader.js';
+import WordCloud from './src/WordCloud.js';
 import { VIEWPORT, DIMENSIONS, WIDTH_ARRAY, TRANS_WIDTH, TRANS_HEIGHT } from './src/Config.js';
 
 $(function () {
@@ -18,116 +20,14 @@ $(function () {
 	var fontSizeScale = d3.scale['sqrt']().range([14, 180]);
 	var layout1, layout2, layout3;
 	var selectedWord = "";
-	var detailWords, allOpenText;
-	var detailWordsArray = new Array();
 
-	/* ---------------
-	Viewport
-	--------------- */
-	var width = DIMENSIONS.width;
-	var height = DIMENSIONS.height;
-	var aspect = DIMENSIONS.aspect;
+	// Data holders
+	var tags = [];
+	var allOpenText = [];
+	var detailWordsArray = [];
 
-	window.nowWidth = VIEWPORT.bWidth;
-	window.nowHeight = VIEWPORT.bHeight;
-
-	var widthArray = WIDTH_ARRAY;
-
-	var transWidth = TRANS_WIDTH;
-
-	var transHeight = TRANS_HEIGHT;
-
+	// Clean up old D3 setup code
 	var container = $("#svgContainerContainer");
-
-
-	/* all */
-	vis[0] = d3.select("#svgcontainer0").append("svg")
-		.attr("width", widthArray[0])
-		.attr("height", height)
-		.attr("viewBox", "0 0 1200 500")
-		.attr("preserveAspectRatio", "xMidYMid")
-		.attr("id", "chartArea0")
-		.append("g")
-		.attr("transform", "translate(" + transWidth[0] + "," + transHeight[0] + ")");
-
-
-	/* age */
-	vis[1] = d3.select("#svgcontainer1").append("svg")
-		.attr("width", widthArray[1])
-		.attr("height", height)
-		.attr("viewBox", "0 0 400 500")
-		.attr("preserveAspectRatio", "xMidYMid")
-		.attr("id", "chartArea1")
-		.append("g")
-		.attr("transform", "translate(" + transWidth[1] + "," + transHeight[1] + ")");
-
-	vis[2] = d3.select("#svgcontainer2").append("svg")
-		.attr("width", widthArray[2])
-		.attr("height", height)
-		.attr("viewBox", "0 0 400 500")
-		.attr("preserveAspectRatio", "xMidYMid")
-		.attr("id", "chartArea2")
-		.append("g")
-		.attr("transform", "translate(" + transWidth[2] + "," + transHeight[2] + ")");
-
-	vis[3] = d3.select("#svgcontainer3").append("svg")
-		.attr("width", widthArray[3])
-		.attr("height", height)
-		.attr("viewBox", "0 0 400 500")
-		.attr("preserveAspectRatio", "xMidYMid")
-		.attr("id", "chartArea3")
-		.append("g")
-		.attr("transform", "translate(" + transWidth[3] + "," + transHeight[3] + ")");
-
-
-	/* area */
-	vis[4] = d3.select("#svgcontainer4").append("svg")
-		.attr("width", widthArray[4])
-		.attr("height", height)
-		.attr("viewBox", "0 0 400 500")
-		.attr("preserveAspectRatio", "xMidYMid")
-		.attr("id", "chartArea4")
-		.append("g")
-		.attr("transform", "translate(" + transWidth[4] + "," + transHeight[4] + ")");
-
-	vis[5] = d3.select("#svgcontainer5").append("svg")
-		.attr("width", widthArray[5])
-		.attr("height", height)
-		.attr("viewBox", "0 0 400 500")
-		.attr("preserveAspectRatio", "xMidYMid")
-		.attr("id", "chartArea5")
-		.append("g")
-		.attr("transform", "translate(" + transWidth[5] + "," + transHeight[5] + ")");
-
-	vis[6] = d3.select("#svgcontainer6").append("svg")
-		.attr("width", widthArray[6])
-		.attr("height", height)
-		.attr("viewBox", "0 0 400 500")
-		.attr("preserveAspectRatio", "xMidYMid")
-		.attr("id", "chartArea6")
-		.append("g")
-		.attr("transform", "translate(" + transWidth[6] + "," + transHeight[6] + ")");
-
-
-	/* gender */
-	vis[7] = d3.select("#svgcontainer7").append("svg")
-		.attr("width", widthArray[7])
-		.attr("height", height)
-		.attr("viewBox", "0 0 600 500")
-		.attr("preserveAspectRatio", "xMidYMid")
-		.attr("id", "chartArea7")
-		.append("g")
-		.attr("transform", "translate(" + transWidth[7] + "," + transHeight[7] + ")");
-
-	vis[8] = d3.select("#svgcontainer8").append("svg")
-		.attr("width", widthArray[8])
-		.attr("height", height)
-		.attr("viewBox", "0 0 600 500")
-		.attr("preserveAspectRatio", "xMidYMid")
-		.attr("id", "chartArea8")
-		.append("g")
-		.attr("transform", "translate(" + transWidth[8] + "," + transHeight[8] + ")");
-
 
 	/*  for timer */
 	var boxAnim;
@@ -137,9 +37,9 @@ $(function () {
 	var Graph = function () {
 
 		var self = this;
-		this.e = new Eventer;
-
-		var tags = new Array();
+		this.e = eventer;
+		this.loader = new DataLoader(this.e);
+		this.wordCloud = new WordCloud(this.e);
 
 		var aboutFlg = "close";
 		var letterTapFlagTop = false;
@@ -153,7 +53,9 @@ $(function () {
 			.range(["#DDD", "#FFF"]);
 
 		this.init = function () {
-			this.e.subscribe('load', this.getData);
+			// Listen for data loaded event
+			this.e.subscribe('data:loaded', this.onDataLoaded);
+
 			this.e.subscribe('init:viewport', this.initViewport);
 			this.e.subscribe('draw:controll', this.drawControll);
 			this.e.subscribe('draw:whole', this.drawWhole);
@@ -162,7 +64,12 @@ $(function () {
 			this.e.subscribe('show:detail', this.showDetail);
 			this.e.subscribe('draw:about', this.aboutLink);
 
-			this.e.publish('load');
+			// Subscribe to WordCloud events
+			this.e.subscribe('word:clicked', this.handleWordClick);
+			this.e.subscribe('word:clicked:whole', this.handleWholeWordClick);
+
+			// Start data loading
+			this.loader.load();
 		};
 
 
@@ -200,213 +107,31 @@ $(function () {
 		}
 
 
-		this.getData = function () {
+		this.onDataLoaded = function (loadedTags, loadedAllOpenText, loadedDetailWordsArray) {
+			tags = loadedTags;
+			allOpenText = loadedAllOpenText;
+			detailWordsArray = loadedDetailWordsArray;
 
-			queue()
-				.defer(d3.tsv, "assets/data/all.tsv")
-				.defer(d3.tsv, "assets/data/all_open.tsv")
-				.defer(d3.tsv, "assets/data/age203040.tsv")
-				.defer(d3.tsv, "assets/data/age5060.tsv")
-				.defer(d3.tsv, "assets/data/age70.tsv")
-				.defer(d3.tsv, "assets/data/area12.tsv")
-				.defer(d3.tsv, "assets/data/area3.tsv")
-				.defer(d3.tsv, "assets/data/area4.tsv")
-				.defer(d3.tsv, "assets/data/genderMale.tsv")
-				.defer(d3.tsv, "assets/data/genderFemale.tsv")
-				.defer(d3.tsv, "assets/data/detail0.tsv")
-				.defer(d3.tsv, "assets/data/detail1.tsv")
-				.defer(d3.tsv, "assets/data/detail2.tsv")
-				.defer(d3.tsv, "assets/data/detail3.tsv")
-				.defer(d3.tsv, "assets/data/detail4.tsv")
-				.defer(d3.tsv, "assets/data/detail5.tsv")
-				.defer(d3.tsv, "assets/data/detail6.tsv")
-				.defer(d3.tsv, "assets/data/detail7.tsv")
-				.defer(d3.tsv, "assets/data/detail8.tsv")
-				.await(loadReady);
-
-
-			function loadReady(_error, _all, _allopen, _age203040,
-				_age5060, _age70, _area12, _area3, _area4,
-				_genderMale, _genderFemale,
-				_detail0, _detail1, _detail2, _detail3, _detail4, _detail5, _detail6, _detail7, _detail8) {
-				tags[0] = $.extend(true, [], _all);
-				tags[1] = $.extend(true, [], _age203040);
-				tags[2] = $.extend(true, [], _age5060);
-				tags[3] = $.extend(true, [], _age70);
-				tags[4] = $.extend(true, [], _area12);
-				tags[5] = $.extend(true, [], _area3);
-				tags[6] = $.extend(true, [], _area4);
-				tags[7] = $.extend(true, [], _genderMale);
-				tags[8] = $.extend(true, [], _genderFemale);
-
-				allOpenText = $.extend(true, [], _allopen);
-
-				//detailWords = $.extend(true, [], _detail);
-
-				detailWordsArray[0] = $.extend(true, [], _detail0);
-				detailWordsArray[1] = $.extend(true, [], _detail1);
-				detailWordsArray[2] = $.extend(true, [], _detail2);
-				detailWordsArray[3] = $.extend(true, [], _detail3);
-				detailWordsArray[4] = $.extend(true, [], _detail4);
-				detailWordsArray[5] = $.extend(true, [], _detail5);
-				detailWordsArray[6] = $.extend(true, [], _detail6);
-				detailWordsArray[7] = $.extend(true, [], _detail7);
-				detailWordsArray[8] = $.extend(true, [], _detail8);
-
-				self.e.publish('init:viewport');
-			}
-
-		}
-
-
-		this.initViewport = function () {
-
-			layout1 = d3.layout.cloud()
-				.timeInterval(Infinity)
-				.size([width, height])
-				.fontSize(function (d) {
-					return fontSizeScale(+d.value);
-				})
-				.text(function (d) {
-					return d.key;
-				})
-				.on("end", draw);
-			layout1.font('YuGothic').spiral('archimedean');
-
-
-			layout2 = d3.layout.cloud()
-				.timeInterval(Infinity)
-				.size([width / 2, height])
-				.fontSize(function (d) {
-					return fontSizeScale(+d.value);
-				})
-				.text(function (d) {
-					return d.key;
-				})
-				.on("end", draw);
-			layout2.font('YuGothic').spiral('archimedean');
-
-
-			layout3 = d3.layout.cloud()
-				.timeInterval(Infinity)
-				.size([width / 3, height])
-				.fontSize(function (d) {
-					return fontSizeScale(+d.value);
-				})
-				.text(function (d) {
-					return d.key;
-				})
-				.on("end", draw);
-			layout3.font('YuGothic').spiral('archimedean');
-
-
-			fontSizeScale.domain([10, 255])
-
-			self.e.publish('draw:controll');
-			self.e.publish('draw:whole');
-
+			self.e.publish('init:viewport');
 		};
 
 
-		this.drawWhole = function () {
+		this.initViewport = function () {
+			self.wordCloud.initViewport();
+			self.e.publish('draw:controll');
+			self.e.publish('draw:whole');
+		};
 
+		this.drawControll = function () {
+			self.wordCloud.startDrawing(tags);
+		};
+
+		this.drawWhole = function () {
 			$("#submenuBlock").animate({ opacity: 'show' }, { duration: 0, easing: 'swing' });
 
-			var _width = widthArray[0];
-			vis[0].attr("width", _width).attr("height", height);
-
-
-			var topText = vis[0].selectAll(".alltext")
-				.data(allOpenText)
-				.enter().append("text")
-				.attr("class", "alltext")
-				.attr("text-anchor", "middle")
-				.attr("transform", function (d, i) {
-
-					var _x = (Math.random() * nowWidth) / 2;
-					var _y = (Math.random() * nowHeight) / 2;
-
-					if (i % 2 == 0) {
-						_x *= -1; _y *= -1;
-					};
-
-					return "translate(" + [_x, _y] + ")";
-				})
-				.style("font-size", function (d) {
-					return d.size + "px";
-				})
-				// .style("font-family", "Yu Gothic")
-				.style("fill", function (d) {
-					return d3.rgb(d.rgb, d.rgb, d.rgb);
-				})
-				.style("opacity", 0.0)
-				.style("text-shadow", function (d) {
-					return "2px 2px 0 #888";
-				})
-				.attr("id", function (d, i) {
-					return d.id + vidId + i;
-				})
-				.on("mouseover", function (d, i) {
-					if (letterTapFlagTop) {
-
-						d3.select(this).transition().duration(40).style({ fill: '#000000' }).style("cursor", "pointer");
-						selectObj = d3.select(this);
-						originalSize = d.size;
-
-						if (!hoverToggle) {
-							hoverToggle = true;
-							var $letterEffect = Snap(this);
-							$letterEffect.attr({ "font-size": originalSize * 0.8 });
-
-							$letterEffect.animate({
-								"font-size": originalSize * 1.0
-							}, 1000, mina.elastic, function () {
-							});
-						}
-					}
-
-				})
-				.on("mouseout", function (d, i) {
-					if (letterTapFlagTop) {
-						d3.select(this).transition().duration(400).style("fill", function (d) {
-							return d3.rgb(d.rgb, d.rgb, d.rgb);
-						});
-						//$letterEffect.remove();
-						hoverToggle = false;
-					}
-
-				})
-				.on("click", function (d, i) {
-					if (letterTapFlagTop) {
-
-						d3.select("#" + d.text + vidId + i).transition().duration(0).style("fill", function (d) {
-							return d3.rgb(d.rgb, d.rgb, d.rgb);
-						})
-
-						selectedWord = d.text;
-
-						vidId = detectSvgNum(d3.select(this.parentNode.parentNode).attr("id"));
-
-						var _r = d.rotate * -0.5;
-						var _tx = transWidth[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[0];
-						var _ty = transHeight[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[1] - 100;
-
-						d3.select(this.parentNode).transition().duration(1000).delay(1000).attr("transform", function (d) {
-							return "translate(" + _tx + "," + _ty + ")";
-						});
-
-						//選択した単語以外を非表示にする
-						d3.select(this.parentNode).selectAll("text").transition().duration(500).style("opacity", .0);
-						d3.select(this).transition().duration(50).style("opacity", 1.0);
-						d3.select(this).transition().duration(50).style("fill", function (d) {
-							return d3.rgb(d.rgb, d.rgb, d.rgb);
-						});
-						letterTapFlagTop = false;
-
-						self.e.publish('show:detail');
-					}
-				});
-
+			// Use WordCloud to draw the text
+			const { topText, vis } = self.wordCloud.drawWhole(allOpenText, window.nowWidth, window.nowHeight);
+			if (!vis) return;
 
 			topText.transition()
 				.duration(function (d, i) {
@@ -420,7 +145,7 @@ $(function () {
 				});
 
 
-			var messageText = vis[0].selectAll("#mtext")
+			var messageText = vis.selectAll("#mtext")
 				.data(["避難者が今、最も気にかけている言葉は何だろう？"])
 				.enter().append("text")
 				.attr("id", "mtext")
@@ -440,7 +165,7 @@ $(function () {
 				});
 
 
-			var descText = vis[0].selectAll("#dtext")
+			var descText = vis.selectAll("#dtext")
 				.data(["「生活」「町」「家」「原発」。去年、１０００人以上の避難者に行ったアンケートの自由記述欄で使われていた言葉です。", "そこには、長引く避難生活の不満や将来への不安など、避難者の生の声が刻まれていました。", "自由記述欄で使われた頻度の高い単語を選び出し、「ワードクラウド」と呼ばれる手法で表現しました。", "単語のサイズが大きいほど、使用頻度が高いことを示しています。単語をクリックすると、単語に紐づいた避難者の思いを読むことができます。"])
 				.enter().append("text")
 				.attr("id", function (d, i) {
@@ -464,26 +189,23 @@ $(function () {
 
 
 			/*
-				make a start button
-			*/
+		make a start button
+	*/
 			var _btnw = 160, _btnh = 40;
 
-			var btnGroup = vis[0].append("svg:g")
+			var btnGroup = vis.append("svg:g")
 				.attr("transform", function (d, i) {
 					var _x = _btnw / 2 * -1;
 					var _y = 100;
 					return "translate(" + [_x + ", " + _y] + ")";
 				});
 
+			// ... (Button events similar to before, but we need to pass start callback) ...
 			var btnStart = btnGroup.selectAll("#btnstart")
 				.data([0])
 				.enter().append("rect")
-				.attr("id", function (d, i) {
-					return "btnstart";
-				})
-				.attr("transform", function (d, i) {
-					return "translate(" + [0, 0] + ")";
-				})
+				.attr("id", "btnstart")
+				.attr("transform", "translate(0,0)")
 				.attr({
 					width: _btnw,
 					height: _btnh,
@@ -491,36 +213,26 @@ $(function () {
 				})
 				.on("mouseover", function (d, i) {
 					d3.select(this).transition().duration(1000).style({ fill: '#FFFFFF' }).style("cursor", "pointer");
-					btnStartText.transition().duration(1000).style({ fill: '#000' });
+					d3.select("#btnstarttext").transition().duration(1000).style({ fill: '#000' });
 
 					if (!btnHoverToggle) {
 						btnHoverToggle = true;
 						var $box = Snap(this);
-						$box.attr({
-							"transform": "scale(0.8, 0.8, 0, 0)"
-						});
-						$box.animate({
-							"transform": "scale(1.6, 1.6, 0, 0)"
-						}, 1000, mina.elastic, function () {
-						});
+						$box.attr({ "transform": "scale(0.8, 0.8, 0, 0)" });
+						$box.animate({ "transform": "scale(1.6, 1.6, 0, 0)" }, 1000, mina.elastic);
 					}
 				})
 				.on("mouseout", function (d, i) {
 					d3.select(this).transition().duration(400).style({ fill: '#333333' });
-					btnStartText.transition().duration(1000).style({ fill: '#FFF' });
+					d3.select("#btnstarttext").transition().duration(1000).style({ fill: '#FFF' });
 
 					var $box = Snap(this);
-					$box.animate({
-						"transform": "scale(1.0, 1.0, 0, 0)"
-					}, 500, mina.elastic);
+					$box.animate({ "transform": "scale(1.0, 1.0, 0, 0)" }, 500, mina.elastic);
 					btnHoverToggle = false;
 				})
 				.on("click", function (d, i) {
-
 					hoverToggle = true;
-
 					$("#mtext").animate({ opacity: 'hide' }, { duration: 1000, easing: 'swing' });
-
 					$("#dtext0").animate({ opacity: 'hide' }, { duration: 1000, easing: 'swing' }, { delay: 0 });
 					$("#dtext1").animate({ opacity: 'hide' }, { duration: 1000, easing: 'swing' }, { delay: 1000 });
 					$("#dtext2").animate({ opacity: 'hide' }, { duration: 1000, easing: 'swing' }, { delay: 2000 });
@@ -533,17 +245,17 @@ $(function () {
 
 					d3.timer(startHover(), 2000);
 
+					// Let WordCloud know animations are starting so it can enable interactions if needed
 					d3.selectAll(".alltext").transition().duration(2000).attr("transform", function (d, i) {
 						return "translate(" + [d.translate0, d.translate1] + ")rotate(" + d.rotate + ")";
 					});
 				});
 
+			// Button text
 			var btnStartText = btnGroup.selectAll("#btnstarttext")
 				.data([0])
 				.enter().append("text")
-				.attr("id", function (d, i) {
-					return "btnstarttext";
-				})
+				.attr("id", "btnstarttext")
 				.attr("transform", function (d, i) {
 					var _x = _btnw / 2;
 					var _y = _btnh / 2 + _btnh / 8;
@@ -553,213 +265,76 @@ $(function () {
 				.attr("text-anchor", "middle")
 				.attr("font-weight", "bold")
 				.style("font-size", "14px")
-				// .style("font-family", "Yu Gothic")
 				.style("fill", "#FFF")
 				.style("opacity", 1.0)
-				.text(function (d) {
-					return "開始する";
-				});
+				.text("開始する");
 
 			if (container.width() < 481) {
 				dialogMobile();
 			}
-
 		};
 
+		// Handlers for events published by WordCloud
+		this.handleWholeWordClick = function (data) {
+			const { element, d, i } = data;
+			// UI logic to move word to center and show details
+			selectedWord = d.text;
+			vidId = 0; // Fixed for whole
+
+			d3.select("#" + d.text + "0" + i).transition().duration(0).style("fill", d3.rgb(d.rgb, d.rgb, d.rgb));
+
+			var _tx = TRANS_WIDTH[currentNum] - d3.transform(d3.select(element).attr("transform")).translate[0];
+			var _ty = TRANS_HEIGHT[currentNum] - d3.transform(d3.select(element).attr("transform")).translate[1] - 100;
+
+			d3.select(element.parentNode).transition().duration(1000).delay(1000).attr("transform", "translate(" + _tx + "," + _ty + ")");
+
+			d3.select(element.parentNode).selectAll("text").transition().duration(500).style("opacity", .0);
+			d3.select(element).transition().duration(50).style("opacity", 1.0);
+			d3.select(element).transition().duration(50).style("fill", d3.rgb(d.rgb, d.rgb, d.rgb));
+
+			self.e.publish('show:detail');
+		};
+
+		this.handleWordClick = function (data) {
+			const { element, d, vidId: _vidId, i } = data;
+			selectedWord = d.text;
+			vidId = _vidId;
+
+			var _tx = TRANS_WIDTH[currentNum] - d3.transform(d3.select(element).attr("transform")).translate[0];
+			var _ty = TRANS_HEIGHT[currentNum] - d3.transform(d3.select(element).attr("transform")).translate[1] - 100;
+
+			d3.select(element.parentNode).transition().duration(1000).delay(1000).attr("transform", "translate(" + _tx + "," + _ty + ")");
+
+			d3.select(element.parentNode).selectAll("text").transition().duration(500).style("opacity", .0);
+			d3.select(element).transition().duration(50).style("opacity", 1.0)
+				.style("fill", "#FFF");
+
+			// Hide other charts
+			// Logic adapted from original switch(vidId)
+			// Using simple logic to hide others
+			// TODO: Clean this up, but keeping compatibility for now
+			if (vidId === 1) { d3.select("#chartArea2").transition().duration(100).style("opacity", 0.0); d3.select("#chartArea3").transition().duration(100).style("opacity", 0.0); }
+			if (vidId === 2) { d3.select("#chartArea1").transition().duration(100).style("opacity", 0.0); d3.select("#chartArea3").transition().duration(100).style("opacity", 0.0); }
+			if (vidId === 3) { d3.select("#chartArea1").transition().duration(100).style("opacity", 0.0); d3.select("#chartArea2").transition().duration(100).style("opacity", 0.0); }
+
+			if (vidId === 4) { d3.select("#chartArea5").transition().duration(100).style("opacity", 0.0); d3.select("#chartArea6").transition().duration(100).style("opacity", 0.0); }
+			if (vidId === 5) { d3.select("#chartArea4").transition().duration(100).style("opacity", 0.0); d3.select("#chartArea6").transition().duration(100).style("opacity", 0.0); }
+			if (vidId === 6) { d3.select("#chartArea4").transition().duration(100).style("opacity", 0.0); d3.select("#chartArea5").transition().duration(100).style("opacity", 0.0); }
+
+			if (vidId === 7) { d3.select("#chartArea8").transition().duration(100).style("opacity", 0.0); }
+			if (vidId === 8) { d3.select("#chartArea7").transition().duration(100).style("opacity", 0.0); }
+
+			self.e.publish('show:detail');
+		};
 
 		var startHover = function () {
-
 			return function () {
-				letterTapFlagTop = true;
+				self.wordCloud.setLetterTapFlagTop(true);
 				return true;
 			}
 		};
 
-
-
-		this.drawControll = function () {
-
-			if (vid == 0) {
-				layout1.stop().words(tags[vid]).start();
-			} else if ((vid == 7) || (vid == 8)) {
-				layout2.stop().words(tags[vid]).start();
-			} else {
-				layout3.stop().words(tags[vid]).start();
-			}
-
-		};
-
-		function detectSvgNum(_string) {
-
-			return parseInt(_string.substr(9, 1));
-		}
-
-
-		function draw(data, bounds) {
-
-			var _width = widthArray[vid];
-
-			vis[vid].attr("width", _width).attr("height", height);
-
-			var _scale = bounds ? Math.min(
-				_width / Math.abs(bounds[1].x - _width / 2),
-				_width / Math.abs(bounds[0].x - _width / 2),
-				height / Math.abs(bounds[1].y - height / 2),
-				height / Math.abs(bounds[0].y - height / 2)) / 2 : 1;
-
-			var text = vis[vid].selectAll("text")
-				.data(data, function (d) {
-					return d.text.toLowerCase();
-				});
-
-			text.transition()
-				.duration(1000)
-				.attr("transform", function (d) {
-					return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-				})
-				.style("font-size", function (d) {
-					return d.size + "px";
-				});
-
-			text.enter().append("text")
-				.attr("text-anchor", "middle")
-				.attr("transform", function (d) {
-					return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-				})
-				.style("font-size", function (d) {
-					return d.size + "px";
-				})
-				.transition()
-				.duration(1000);
-
-			text.style("fill", function (d, i) {
-				return grayScale(+d.value);
-			})
-				.style("opacity", 1.0)
-				.style("text-shadow", function (d) {
-					return "1px 1px 0 #888";
-				})
-				.attr("class", "onetext")
-				.attr("id", function (d, i) {
-					return d.text + vid + i;
-				})
-				.text(function (d) {
-					return d.text;
-				})
-				.on("mouseover", function (d, i) {
-					if (letterTapFlag) {
-						var _v = detectSvgNum(d3.select(this.parentNode.parentNode).attr("id"));
-						d3.select("#" + d.text + _v + i).transition().duration(40).style({ fill: '#000000' }).style("cursor", "pointer");
-
-						selectObj = d3.select("#" + d.text + _v + i);
-						originalSize = d.size;
-						if (!hoverToggle) {
-							hoverToggle = true;
-							var $circle = Snap(this);
-							$circle.attr({ "font-size": originalSize * 0.8 });
-
-							$circle.animate({
-								"font-size": originalSize * 1.0
-							}, 1000, mina.elastic, function () {
-
-							});
-						}
-					}
-
-				})
-				.on("mouseout", function (d, i) {
-					if (letterTapFlag) {
-						var _v = detectSvgNum(d3.select(this.parentNode.parentNode).attr("id"));
-
-						d3.select("#" + d.text + _v + i).transition().duration(400).style("fill", function (d) {
-							return grayScale(+d.value);
-						});
-						hoverToggle = false;
-					}
-
-				})
-				.on("click", function (d, i) {
-					if (letterTapFlag) {
-
-						letterTapFlag = false;
-
-						var _v = detectSvgNum(d3.select(this.parentNode.parentNode).attr("id"));
-
-						d3.select("#" + d.text + _v + i).transition().duration(0).style("fill", function (d) {
-							return grayScale(+d.value);
-						})
-
-						selectedWord = d.text;
-
-						vidId = detectSvgNum(d3.select(this.parentNode.parentNode).attr("id"));
-
-						var _r = d.rotate * -0.5;
-						var _tx = transWidth[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[0];
-						var _ty = transHeight[currentNum] - d3.transform(d3.select(this).attr("transform")).translate[1] - 100;
-
-						d3.select(this.parentNode).transition().duration(1000).delay(1000).attr("transform", function (d) {
-							return "translate(" + _tx + "," + _ty + ")";
-						});
-
-						//選択した単語以外を非表示にする
-						d3.select(this.parentNode).selectAll("text").transition().duration(500).style("opacity", .0);
-						d3.select(this).transition().duration(50).style("opacity", 1.0);
-						d3.select(this).transition().duration(50).style("fill", function (d) {
-							return grayScale(+d.value);
-						});
-
-						switch (vidId) {
-							case 0:
-								break;
-
-
-							case 1:
-								d3.select("#chartArea2").transition().duration(100).style("opacity", 0.0);
-								d3.select("#chartArea3").transition().duration(100).style("opacity", 0.0);
-								break;
-							case 2:
-								d3.select("#chartArea1").transition().duration(100).style("opacity", 0.0);
-								d3.select("#chartArea3").transition().duration(100).style("opacity", 0.0);
-								break;
-							case 3:
-								d3.select("#chartArea1").transition().duration(100).style("opacity", 0.0);
-								d3.select("#chartArea2").transition().duration(100).style("opacity", 0.0);
-								break;
-
-
-							case 4:
-								d3.select("#chartArea5").transition().duration(100).style("opacity", 0.0);
-								d3.select("#chartArea6").transition().duration(100).style("opacity", 0.0);
-								break;
-							case 5:
-								d3.select("#chartArea4").transition().duration(100).style("opacity", 0.0);
-								d3.select("#chartArea6").transition().duration(100).style("opacity", 0.0);
-								break;
-							case 6:
-								d3.select("#chartArea4").transition().duration(100).style("opacity", 0.0);
-								d3.select("#chartArea5").transition().duration(100).style("opacity", 0.0);
-								break;
-
-
-							case 7:
-								d3.select("#chartArea8").transition().duration(100).style("opacity", 0.0);
-								break;
-							case 8:
-								d3.select("#chartArea7").transition().duration(100).style("opacity", 0.0);
-								break;
-						}
-
-						self.e.publish('show:detail');
-					}
-				});
-
-			vid++;
-			if (vid < 9) {
-				self.e.publish('draw:controll');
-			} else {
-				self.e.publish('draw:about');
-			}
-		}
+		// Removing generic drawControll and draw functions as they are now in WordCloud class
 
 
 		this.showDetail = function () {
@@ -1017,26 +592,19 @@ $(function () {
 
 
 		this.opacityFull = function () {
-
+			// Logic to restore opacity
 			if (aboutFlg == "open") {
-
 				$("#aboutLink").animate({ opacity: 'show' }, { duration: 0, easing: 'swing' });
 				aboutFlg = "close";
-
 			} else if (aboutFlg == "close") {
+				// Restore via D3 selectors directly as we don't hold 'vis' array here anymore
+				// or better, delegate to WordCloud
 
-				/*
-				area appear
-				*/
 				switch (vidId) {
-					case 0:
-						break;
-
-
+					case 0: break;
 					case 1:
 						d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
 						d3.select("#chartArea3").transition().duration(100).style("opacity", 1.0);
-
 						break;
 					case 2:
 						d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
@@ -1046,8 +614,6 @@ $(function () {
 						d3.select("#chartArea1").transition().duration(100).style("opacity", 1.0);
 						d3.select("#chartArea2").transition().duration(100).style("opacity", 1.0);
 						break;
-
-
 					case 4:
 						d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
 						d3.select("#chartArea6").transition().duration(100).style("opacity", 1.0);
@@ -1060,8 +626,6 @@ $(function () {
 						d3.select("#chartArea4").transition().duration(100).style("opacity", 1.0);
 						d3.select("#chartArea5").transition().duration(100).style("opacity", 1.0);
 						break;
-
-
 					case 7:
 						d3.select("#chartArea8").transition().duration(100).style("opacity", 1.0);
 						break;
@@ -1073,26 +637,28 @@ $(function () {
 				/*
 				letter appear
 				*/
-				vis[vidId].selectAll("text").transition().duration(1000).style("opacity", 1.0);
+				const currentChart = d3.select("#chartArea" + vidId);
 
-				vis[vidId].transition().duration(1000).delay(0).attr("transform", function (d) {
-					return "translate(" + transWidth[vidId] + "," + transHeight[vidId] + ")";
-				});
-
-				if (vidId == 0) {
-					letterTapFlagTop = true;
+				if (vidId === 0) {
+					self.wordCloud.resetColorsTop();
 				} else {
-					letterTapFlag = true;
+					self.wordCloud.resetColors(vidId);
 				}
 
+				// Reset transform
+				currentChart.select("g").transition().duration(1000).delay(0).attr("transform", "translate(" + TRANS_WIDTH[vidId] + "," + TRANS_HEIGHT[vidId] + ")");
 
+				// Reset flags in WordCloud
+				if (vidId == 0) {
+					self.wordCloud.setLetterTapFlagTop(true);
+				} else {
+					self.wordCloud.setLetterTapFlag(true);
+				}
 			}
-
-		}
+		};
 
 		this.init.apply(this, arguments);
-	};
-
+	}; // Close Graph class
 
 	gg = new Graph;
 
@@ -1114,8 +680,8 @@ $(function () {
 	function resizeSVG() {
 
 		var targetWidth = container.width();
-		nowWidth = targetWidth;
-		nowHeight = Math.round(targetWidth / aspect);
+		window.nowWidth = targetWidth;
+		window.nowHeight = Math.round(targetWidth / DIMENSIONS.aspect);
 
 		switch (currentNum) {
 			case 0:
@@ -1176,3 +742,4 @@ function closeDetailBtn() {
 	// delete zdal;
 	gg.opacityFull();
 }
+window.closeDetailBtn = closeDetailBtn;
